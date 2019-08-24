@@ -1,0 +1,63 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:statusBarColor" tools:targetApi="lollipop">#009d83</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+
+        <item name="android:windowContentTransitions" tools:targetApi="lollipop">true</item>
+
+        <item name="android:windowEnterTransition" tools:targetApi="lollipop">@transition/explode</item>
+        <item name="android:windowExitTransition" tools:targetApi="lollipop">@transition/explode</item>
+
+        <item name="android:windowSharedElementEnterTransition" tools:targetApi="lollipop">@transition/slide_and_changebounds_sequential_with_interpolators</item>
+        <item name="android:windowSharedElementExitTransition" tools:targetApi="lollipop">@transition/slide</item>
+    </style>
+
+    <style name="setMainScreenVisibility" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:visibility">visible</item>
+    </style>
+
+    <style name="setFilterScreenVisibility" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="setMissionFoundScreenVisibility" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="setMissionReadyScreenVisibility" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="setMissionQuestionScreenVisibility" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="setMissionResultScreenVisibility" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="setMissionHintScreenVisibility" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="setMissionTipScreenVisibility" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="MyRatingBar" parent="Base.Widget.AppCompat.RatingBar">
+        <item name="android:colorControlNormal">#FFFFFF</item>
+        <item name="android:colorControlActivated">#FFFFFF</item>
+        <item name="progressDrawable">@drawable/ratingstars</item>
+    </style>
+
+    <style name="RatingBar" parent="Widget.AppCompat.RatingBar.Small">
+        <item name="android:ratingBarStyle">@style/MyRatingBar</item>
+    </style>
+
+</resources>

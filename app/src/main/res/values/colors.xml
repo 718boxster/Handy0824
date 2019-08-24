@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="mainThemeColor">#673ab7</color>
+    <color name="titleTextColor">#4a4a4a</color>
+    <color name="subTextColor">#c7c7c7</color>
+
+    <color name="facebookLogin">#498fe1</color>
+    <color name="facebookLoginPressed">#aa498fe1</color>
+    <color name="kakaoLogin">#f7e71b</color>
+    <color name="kakaoLoginPressed">#aaf7e71b</color>
+    <color name="gmailLogin">#ff5e5e</color>
+    <color name="gmailLoginPressed">#aaff5e5e</color>
+    <color name="emailLogin">#4a494a</color>
+    <color name="emailLoginPressed">#aa4a494a</color>
+
+
+    <color name="wrongAnsColor">#d0011b</color>
+    <color name="correctAnsColor">#7ed221</color>
+
+    <color name="inputboxColor">#d7d7d7</color>
+
+    <color name="transparentColor">#b3000000</color>
+</resources>

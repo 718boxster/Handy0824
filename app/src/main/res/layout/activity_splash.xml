@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SplashActivity"
+    android:background="@color/mainThemeColor"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="130px"
+        android:gravity="center"
+        android:textColor="#FFFFFF"
+        android:textSize="50px"
+        android:text="나만의 여행루트 제작\n내가 사는 지역의 역사공부"/>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/app_title">
+        <TextView
+            android:layout_marginTop="250px"
+            android:transitionName="appTitle"
+            tools:targetApi="lollipop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:tag="B"
+            android:textStyle="bold"
+            android:text="핸디\n트립"
+            android:textSize="300px"
+            android:textColor="#FFFFFF"
+            android:gravity="center"
+            android:id="@+id/appTitle" />
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/appTitle"
+            android:indeterminate="true"
+            android:indeterminateTintMode="src_atop"
+            android:indeterminateTint="#FFFFFF"/>
+
+    </RelativeLayout>
+
+
+
+</LinearLayout>

@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">HandiTrip</string>
+    <string name="already_exist"><u>이미 계정이 있습니다.</u></string>
+    <string name="giveup_mission"><u>미션 포기하기</u></string>
+    <string name="find_id"><u>계정 찾으러 가기</u></string>
+    <string name="join_handytrip"><u>핸디트립 가입하기</u></string>
+</resources>
