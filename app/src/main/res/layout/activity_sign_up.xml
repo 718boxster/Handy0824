@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/mainThemeColor"
-    tools:context=".SignUpActivity">
+    tools:context=".FindAccountActivity">
 
     <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/mainThemeColor"
+        android:layout_alignParentTop="true"
         app:contentInsetStart="0dp">
 
         <ImageView
@@ -27,34 +29,212 @@
             android:layout_height="match_parent"
             android:gravity="center_vertical"
             android:tag="B"
-            android:text="계정 찾기"
+            android:text="이메일로 가입하기"
             android:textColor="#FFFFFF"
             android:textSize="50px"
             android:textStyle="bold" />
     </androidx.appcompat.widget.Toolbar>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="@drawable/appbar_shadow"/>
 
-    <com.google.android.material.tabs.TabLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:tabIndicatorFullWidth="true">
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="비밀번호 찾기" />
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="가입한 이메일 찾기"/>
-    </com.google.android.material.tabs.TabLayout>
+        android:layout_below="@+id/toolbar"
+        android:layout_above="@+id/confirm"
+        android:layout_marginBottom="30px">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <View
+                android:id="@+id/shadow"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@drawable/appbar_shadow"/>
 
-    <View
+
+            <EditText
+                android:layout_below="@id/shadow"
+                android:id="@+id/input_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
+                android:background="@drawable/inputbox_rounded"
+                android:gravity="left"
+                android:hint="이메일을 입력해주세요.  (필수)"
+                android:inputType="textEmailAddress"
+                android:layout_marginTop="70px"
+                android:layout_marginLeft="30px"
+                android:layout_marginRight="30px"
+                android:paddingLeft="30px"
+                android:paddingTop="30px"
+                android:paddingRight="30px"
+                android:paddingBottom="30px"
+                android:tag="B"
+                android:textColor="#FFFFFF"
+                android:textColorHint="@color/subTextColor"
+                android:textSize="40px"
+                android:textStyle="bold"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <EditText
+                android:layout_below="@+id/input_email"
+                android:id="@+id/input_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
+                android:background="@drawable/inputbox_rounded"
+                android:gravity="left"
+                android:hint="비밀번호를 입력해주세요.  (필수)"
+                android:inputType="textEmailAddress"
+                android:layout_marginTop="70px"
+                android:layout_marginLeft="30px"
+                android:layout_marginRight="30px"
+                android:paddingLeft="30px"
+                android:paddingTop="30px"
+                android:paddingRight="30px"
+                android:paddingBottom="30px"
+                android:tag="B"
+                android:textColor="#FFFFFF"
+                android:textColorHint="@color/subTextColor"
+                android:textSize="40px"
+                android:textStyle="bold"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <EditText
+                android:layout_below="@+id/input_password"
+                android:id="@+id/confirm_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
+                android:background="@drawable/inputbox_rounded"
+                android:gravity="left"
+                android:hint="비밀번호를 한번 더 입력해주세요.  (필수)"
+                android:inputType="textEmailAddress"
+                android:layout_marginTop="70px"
+                android:layout_marginLeft="30px"
+                android:layout_marginRight="30px"
+                android:paddingLeft="30px"
+                android:paddingTop="30px"
+                android:paddingRight="30px"
+                android:paddingBottom="30px"
+                android:tag="B"
+                android:textColor="#FFFFFF"
+                android:textColorHint="@color/subTextColor"
+                android:textSize="40px"
+                android:textStyle="bold"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/confirm_password"
+                android:id="@+id/input_phone_number">
+                <EditText
+                    android:id="@+id/input_phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:animateLayoutChanges="true"
+                    android:background="@drawable/inputbox_rounded"
+                    android:gravity="left"
+                    android:hint="휴대폰 번호 입력"
+                    android:inputType="textEmailAddress"
+                    android:layout_marginTop="70px"
+                    android:layout_marginLeft="30px"
+                    android:layout_marginRight="30px"
+                    android:paddingLeft="30px"
+                    android:paddingTop="30px"
+                    android:paddingRight="30px"
+                    android:paddingBottom="30px"
+                    android:tag="B"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="@color/subTextColor"
+                    android:textSize="40px"
+                    android:textStyle="bold"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:text="인증번호 발송"
+                    android:padding="20px"
+                    android:textSize="30px"
+                    android:layout_marginRight="30px"
+                    android:layout_marginBottom="5px"
+                    android:textColor="#4cFFFFFF"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/input_phone_number"
+                android:id="@+id/input_certi_number">
+                <EditText
+                    android:id="@+id/input_certi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:animateLayoutChanges="true"
+                    android:background="@drawable/inputbox_rounded"
+                    android:gravity="left"
+                    android:hint="인증번호 입력"
+                    android:inputType="textEmailAddress"
+                    android:layout_marginTop="70px"
+                    android:layout_marginLeft="30px"
+                    android:layout_marginRight="30px"
+                    android:paddingLeft="30px"
+                    android:paddingTop="30px"
+                    android:paddingRight="30px"
+                    android:paddingBottom="30px"
+                    android:tag="B"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="@color/subTextColor"
+                    android:textSize="40px"
+                    android:textStyle="bold"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:text="인증번호 확인"
+                    android:padding="20px"
+                    android:textSize="30px"
+                    android:layout_marginRight="30px"
+                    android:layout_marginBottom="5px"
+                    android:textColor="#4cFFFFFF"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </RelativeLayout>
+    </ScrollView>
+
+
+
+    <TextView
+        android:layout_alignParentBottom="true"
+        android:id="@+id/confirm"
         android:layout_width="match_parent"
-        android:layout_height="3dp"
-        android:background="@drawable/appbar_shadow" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@drawable/login_btn_selector"
+        android:clickable="true"
+        android:elevation="4dp"
+        android:gravity="center"
+        android:padding="30px"
+        android:tag="B"
+        android:text="가입 완료"
+        android:textColor="@color/mainThemeColor"
+        android:textSize="50px"
 
-</LinearLayout>
+        android:textStyle="bold"
+        android:layout_marginLeft="30px"
+        android:layout_marginRight="30px"
+        android:layout_marginBottom="30px" />
+</RelativeLayout>

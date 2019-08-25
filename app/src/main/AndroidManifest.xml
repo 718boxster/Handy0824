@@ -16,8 +16,10 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:usesCleartextTraffic="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
+        <activity android:name=".SignUpActivity"
+            android:windowSoftInputMode="adjustResize"></activity>
         <activity android:name=".SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,12 +28,18 @@
             </intent-filter>
         </activity>
         <activity android:name=".LoginActivity" />
-        <activity android:name=".SignUpActivity" />
-        <activity android:name=".MainActivity"></activity>
-        <service android:name=".Utils.GpsService"/>
-        <meta-data android:name="com.kakao.sdk.AppKey" android:value="1a51473e3c745164f8aa28591948b61a"/>
-        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+        <activity android:name=".FindAccountActivity" />
+        <activity android:name=".MainActivity" />
 
+        <service android:name=".Utils.GpsService" />
+
+        <meta-data
+            android:name="com.kakao.sdk.AppKey"
+            android:value="1a51473e3c745164f8aa28591948b61a" />
+
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
     </application>
 
 </manifest>

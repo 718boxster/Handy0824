@@ -15,13 +15,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 import com.handytrip.Utils.AutoLayout;
 import com.handytrip.Utils.BaseActivity;
-import com.handytrip.Utils.Preferences;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -99,12 +99,7 @@ public class LoginActivity extends BaseActivity {
     }
 
 
-    private boolean isEmailValid(String email) {
-        String expression = "^[\\w\\.-]+@([\\w\\-]+\\.)+[A-Z]{2,4}$";
-        Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(email);
-        return matcher.matches();
-    }
+
 
     @OnClick({R.id.back, R.id.signup, R.id.find_id, R.id.confirm})
     public void onViewClicked(View view) {
@@ -113,8 +108,11 @@ public class LoginActivity extends BaseActivity {
                 onBackPressed();
                 break;
             case R.id.signup:
+                Intent signUp = new Intent(LoginActivity.this, SignUpActivity.class);
+                startActivityForResult(signUp, 1);
+                break;
             case R.id.find_id:
-                Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
+                Intent intent = new Intent(LoginActivity.this, FindAccountActivity.class);
                 startActivity(intent);
                 break;
             case R.id.confirm:
@@ -180,41 +178,17 @@ public class LoginActivity extends BaseActivity {
         }
     }
 
-    private class Login extends AsyncTask<Void, Void, String> {
-
-        Context context;
-        String id;
-        String pw;
-        String result;
-        ProgressDialog progressDialog;
-
-        public Login(Context context, String id, String pw) {
-            this.context = context;
-            this.id = id;
-            this.pw = pw;
-            this.result = "";
-            this.progressDialog = new ProgressDialog(context);
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-        }
-
-        @Override
-        protected String doInBackground(Void... voids) {
-
-            Log.d("login result", result);
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-
-
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case 1:
+                    String u_id = data.getStringExtra("u_id");
+                    inputEmail.setText(u_id);
+                    inputPassword.requestFocus();
+                    break;
+            }
         }
     }
 }

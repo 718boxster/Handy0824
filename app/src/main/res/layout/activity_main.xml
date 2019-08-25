@@ -931,6 +931,7 @@
                 android:layout_weight="1.5">
 
                 <ImageView
+                    android:id="@+id/mission_result_close"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
@@ -1051,26 +1052,26 @@
                         android:textSize="55px"
                         android:textStyle="bold" />
 
-
-                    <TextView
-                        android:id="@+id/mission_result_get_tip"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="60px"
-                        android:layout_marginRight="60px"
-                        android:layout_marginBottom="80px"
-                        android:background="@drawable/confirm_btn_selector"
-                        android:clickable="true"
-                        android:gravity="center"
-                        android:paddingTop="30px"
-                        android:paddingBottom="30px"
-                        android:tag="B"
-                        android:text="여행 꿀팁 보러가기"
-                        android:textColor="#FFFFFF"
-                        android:textSize="55px"
-                        android:textStyle="bold" />
                 </LinearLayout>
 
+                <TextView
+                    android:id="@+id/mission_result_get_tip"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="60px"
+                    android:layout_marginRight="60px"
+                    android:layout_marginBottom="80px"
+                    android:background="@drawable/confirm_btn_selector"
+                    android:clickable="true"
+                    android:gravity="center"
+                    android:paddingTop="30px"
+                    android:paddingBottom="30px"
+                    android:tag="B"
+                    android:text="여행 꿀팁 보러가기"
+                    android:textColor="#FFFFFF"
+                    android:textSize="55px"
+                    android:layout_alignParentBottom="true"
+                    android:textStyle="bold" />
 
             </RelativeLayout>
         </LinearLayout>
@@ -1166,6 +1167,112 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
     <!--found mission screen-->
+
+
+
+    <!--mission_finish_tip_screen-->
+    <RelativeLayout
+        android:id="@+id/mission_finish_tip_screen"
+        style="@style/setMissionTipScreenVisibility"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/transparentColor">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:weightSum="20">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="0px"
+                android:layout_weight="1.5">
+
+                <ImageView
+                    android:id="@+id/mission_finish_hint_close"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:padding="30px"
+                    android:src="@drawable/close_btn" />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/mission_finish_hint_title"
+                android:layout_width="match_parent"
+                android:layout_height="0px"
+                android:layout_weight="2.5"
+                android:gravity="center_horizontal|top"
+                android:paddingLeft="60px"
+                android:paddingRight="60px"
+                android:tag="B"
+                android:textColor="#FFFFFF"
+                android:text="힌트를 보고\n재시도 해보세요!"
+                android:paddingTop="10px"
+                android:textSize="60px"
+                android:textStyle="bold" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="0px"
+                android:layout_weight="16"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/mission_finish_hint_img"
+                        android:layout_width="match_parent"
+                        android:layout_height="0px"
+                        android:layout_weight="1.3"
+                        android:src="@drawable/the_o_twin_three"
+                        android:scaleType="fitXY"/>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0px"
+                        android:layout_weight="2">
+                        <TextView
+                            android:id="@+id/mission_finish_confirm"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="60px"
+                            android:layout_marginRight="60px"
+                            android:layout_marginBottom="80px"
+                            android:background="@drawable/confirm_btn_selector"
+                            android:clickable="true"
+                            android:gravity="center"
+                            android:paddingTop="30px"
+                            android:paddingBottom="30px"
+                            android:layout_alignParentBottom="true"
+                            android:tag="B"
+                            android:text="여행 꿀팁 보러가기"
+                            android:textColor="#FFFFFF"
+                            android:textSize="55px"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/mission_finish_hint"
+                            android:layout_above="@+id/mission_finish_confirm"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:padding="60px"
+                            android:text="힌트힌트힌트힌트힌트힌트힌트힌트힌트힌트힌트"
+                            android:textColor="#FFFFFF"
+                            android:textSize="50px"/>
+                    </RelativeLayout>
+                </LinearLayout>
+
+
+            </RelativeLayout>
+        </LinearLayout>
+    </RelativeLayout>
+    <!--mission_finish_tip_screen-->
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

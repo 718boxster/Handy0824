@@ -76,6 +76,8 @@ public class SplashActivity extends BaseActivity {
                                     mission.get("S_4").getAsString()
                             ));
                         } catch (Exception e){
+                            e.printStackTrace();
+//                            Toast.makeText(SplashActivity.this, "미션 정보를 받아오는데 실패했습니다.", Toast.LENGTH_SHORT).show();
                             staticData.missionData.add(new MissionData(
                                     mission.get("M_NAME").getAsString(),
                                     mission.get("M_PLACE").getAsString(),
