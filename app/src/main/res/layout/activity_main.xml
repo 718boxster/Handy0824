@@ -115,16 +115,21 @@
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="80px"
+                android:id="@+id/menu_map_img"
+                android:layout_width="27dp"
                 android:layout_height="80px"
                 android:layout_marginBottom="15px"
-                android:background="@drawable/email_selector" />
+                android:scaleType="fitXY"
+                android:src="@drawable/tab_map_act" />
 
             <TextView
+                android:id="@+id/menu_map_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="지도" />
+                android:text="지도"
+                android:textColor="@color/mainThemeColor"
+                android:textSize="40px" />
         </LinearLayout>
 
 
@@ -138,16 +143,20 @@
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="80px"
+                android:id="@+id/menu_record_img"
+                android:layout_width="28dp"
                 android:layout_height="80px"
                 android:layout_marginBottom="15px"
-                android:background="@drawable/email_selector" />
+                android:scaleType="fitXY"
+                android:src="@drawable/tab_history" />
 
             <TextView
+                android:id="@+id/menu_record_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="기록" />
+                android:text="기록"
+                android:textSize="40px" />
         </LinearLayout>
 
 
@@ -161,16 +170,20 @@
             android:orientation="vertical">
 
             <ImageView
+                android:id="@+id/menu_my_page_img"
                 android:layout_width="80px"
                 android:layout_height="80px"
                 android:layout_marginBottom="15px"
-                android:background="@drawable/email_selector" />
+                android:scaleType="fitXY"
+                android:src="@drawable/tab_mypage" />
 
             <TextView
+                android:id="@+id/menu_my_page_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="마이페이지" />
+                android:text="마이페이지"
+                android:textSize="40px" />
         </LinearLayout>
     </LinearLayout>
 
@@ -364,7 +377,7 @@
                         android:layout_width="200px"
                         android:layout_height="200px"
                         android:padding="37px"
-                        android:src="@drawable/pin_compelete" />
+                        android:src="@drawable/pin_completed" />
                 </RelativeLayout>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -914,11 +927,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/transparentColor">
+
         <ImageView
+            android:id="@+id/correct_answer_bg"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/petal"
-            android:id="@+id/correct_answer_bg"/>
+            android:src="@drawable/petal" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -952,6 +967,7 @@
                 android:textColor="#FFFFFF"
                 android:textSize="90px"
                 android:textStyle="bold" />
+
             <TextView
                 android:id="@+id/mission_result2_text"
                 android:layout_width="match_parent"
@@ -1058,6 +1074,7 @@
                     android:id="@+id/mission_result_get_tip"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
                     android:layout_marginLeft="60px"
                     android:layout_marginRight="60px"
                     android:layout_marginBottom="80px"
@@ -1070,7 +1087,6 @@
                     android:text="여행 꿀팁 보러가기"
                     android:textColor="#FFFFFF"
                     android:textSize="55px"
-                    android:layout_alignParentBottom="true"
                     android:textStyle="bold" />
 
             </RelativeLayout>
@@ -1169,7 +1185,6 @@
     <!--found mission screen-->
 
 
-
     <!--mission_finish_tip_screen-->
     <RelativeLayout
         android:id="@+id/mission_finish_tip_screen"
@@ -1205,11 +1220,11 @@
                 android:layout_weight="2.5"
                 android:gravity="center_horizontal|top"
                 android:paddingLeft="60px"
+                android:paddingTop="10px"
                 android:paddingRight="60px"
                 android:tag="B"
-                android:textColor="#FFFFFF"
                 android:text="힌트를 보고\n재시도 해보세요!"
-                android:paddingTop="10px"
+                android:textColor="#FFFFFF"
                 android:textSize="60px"
                 android:textStyle="bold" />
 
@@ -1230,17 +1245,19 @@
                         android:layout_width="match_parent"
                         android:layout_height="0px"
                         android:layout_weight="1.3"
-                        android:src="@drawable/the_o_twin_three"
-                        android:scaleType="fitXY"/>
+                        android:scaleType="fitXY"
+                        android:src="@drawable/the_o_twin_three" />
 
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="0px"
                         android:layout_weight="2">
+
                         <TextView
                             android:id="@+id/mission_finish_confirm"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_alignParentBottom="true"
                             android:layout_marginLeft="60px"
                             android:layout_marginRight="60px"
                             android:layout_marginBottom="80px"
@@ -1249,7 +1266,6 @@
                             android:gravity="center"
                             android:paddingTop="30px"
                             android:paddingBottom="30px"
-                            android:layout_alignParentBottom="true"
                             android:tag="B"
                             android:text="여행 꿀팁 보러가기"
                             android:textColor="#FFFFFF"
@@ -1258,13 +1274,13 @@
 
                         <TextView
                             android:id="@+id/mission_finish_hint"
-                            android:layout_above="@+id/mission_finish_confirm"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
+                            android:layout_above="@+id/mission_finish_confirm"
                             android:padding="60px"
                             android:text="힌트힌트힌트힌트힌트힌트힌트힌트힌트힌트힌트"
                             android:textColor="#FFFFFF"
-                            android:textSize="50px"/>
+                            android:textSize="50px" />
                     </RelativeLayout>
                 </LinearLayout>
 
@@ -1273,6 +1289,61 @@
         </LinearLayout>
     </RelativeLayout>
     <!--mission_finish_tip_screen-->
+
+
+    <!--mission_history_screen-->
+    <LinearLayout
+        android:id="@+id/mission_record_screen"
+        style="@style/setMissionRecordScreenVisibillity"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/mission_record_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#FFFFFF"
+            app:contentInsetStart="0dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <ImageView
+                    android:id="@+id/mission_record_back"
+                    android:layout_width="70px"
+                    android:layout_height="70px"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="40px"
+                    android:layout_marginRight="120px"
+                    android:background="@drawable/back_btn_dark_gray" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:tag="B"
+                    android:text="미션 기록"
+                    android:textColor="#4a4a4a"
+                    android:textSize="50px"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+        </androidx.appcompat.widget.Toolbar>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingRight="30px"
+            android:background="#FFFFFF"
+            android:id="@+id/mission_record_list">
+
+        </androidx.recyclerview.widget.RecyclerView>
+
+    </LinearLayout>
+    <!--mission_history_screen-->
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

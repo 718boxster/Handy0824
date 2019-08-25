@@ -19,11 +19,14 @@ public interface RetrofitAPI {
     Call<JsonObject> getAllMissions();
 
     @GET("put_user_answer.php")
-    Call<String> putUserAnswer(@Query("u_id") String _id, @Query("m_name") String m_name, @Query("m_lat") String m_lat, @Query("m_lng") String m_lng, @Query("m_is_correct") int isCorrect, @Query("m_ans_time") String m_ans_time, @Query("m_give_up_time") String m_give_up_time);
+    Call<String> putUserAnswer(@Query("u_id") String _id, @Query("m_name") String m_name, @Query("m_lat") String m_lat, @Query("m_lng") String m_lng, @Query("m_is_correct") int isCorrect, @Query("m_ans_time") String m_ans_time, @Query("m_give_up_time") String m_give_up_time, @Query("m_img") String m_img);
 
     @GET("get_user_missions.php")
     Call<JsonObject> getUserMissions(@Query("u_id") String _id, @Query("m_name") String m_name, @Query("m_lat") String m_lat, @Query("m_lng") String m_lng);
 
     @GET("sign_up.php")
     Call<String> signUp(@Query("u_id") String _id, @Query("pw") String pw, @Query("phone") String phone);
+
+    @GET("get_all_user_missions.php")
+    Call<JsonObject> getAllUserMissions(@Query("u_id") String u_id);
 }

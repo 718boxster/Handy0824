@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
@@ -22,6 +23,8 @@ import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
@@ -29,9 +32,11 @@ import com.bumptech.glide.request.transition.Transition;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.handytrip.Structures.MissionData;
+import com.handytrip.Structures.MissionRecordItem;
 import com.handytrip.Utils.AutoLayout;
 import com.handytrip.Utils.BaseActivity;
 import com.handytrip.Utils.CustomCalloutBalloonAdapter;
+import com.handytrip.Utils.MissionRecordListAdapter;
 import com.handytrip.Utils.StaticData;
 
 import net.daum.mf.map.api.CameraUpdateFactory;
@@ -73,6 +78,11 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
     boolean isMissionResultScreenOn = false;
     boolean isMissionTipScreenOn = false;
 
+    boolean isInMap = true;
+
+
+    boolean isMapHeading = true;
+
     @BindView(R.id.s1)
     TextView s1;
     @BindView(R.id.s2)
@@ -113,6 +123,34 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
     TextView missionFinishHint;
     @BindView(R.id.mission_finish_tip_screen)
     RelativeLayout missionFinishTipScreen;
+    @BindView(R.id.menu_map)
+    LinearLayout menuMap;
+    @BindView(R.id.menu_record)
+    LinearLayout menuRecord;
+    @BindView(R.id.menu_my_page)
+    LinearLayout menuMyPage;
+    @BindView(R.id.menu_map_img)
+    ImageView menuMapImg;
+    @BindView(R.id.menu_map_text)
+    TextView menuMapText;
+    @BindView(R.id.menu_record_img)
+    ImageView menuRecordImg;
+    @BindView(R.id.menu_record_text)
+    TextView menuRecordText;
+    @BindView(R.id.menu_my_page_img)
+    ImageView menuMyPageImg;
+    @BindView(R.id.menu_my_page_text)
+    TextView menuMyPageText;
+    @BindView(R.id.open_menu)
+    ImageView openMenu;
+    @BindView(R.id.mission_found_distance)
+    TextView missionFoundDistance;
+    @BindView(R.id.mission_record_back)
+    ImageView missionRecordBack;
+    @BindView(R.id.mission_record_list)
+    RecyclerView missionRecordList;
+    @BindView(R.id.mission_record_screen)
+    LinearLayout missionRecordScreen;
 
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -136,6 +174,8 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         } else if (isFilterScreenOn) {
             setFilterScreen(false);
             setMainScreen(true);
+        } else if (!isInMap) {
+            menuMap.performClick();
         } else {
             if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
                 backKeyPressedTime = System.currentTimeMillis();
@@ -275,10 +315,10 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
     @Override
     public void onCurrentLocationUpdate(MapView mapView, MapPoint mapPoint, float v) {
 //        missionFoundScreen.setVisibility(View.GONE);
+        current = new Location("currentPoint");
+        current.setLatitude(mapPoint.getMapPointGeoCoord().latitude);
+        current.setLongitude(mapPoint.getMapPointGeoCoord().longitude);
         if (!isMissionIng) {
-            current = new Location("currentPoint");
-            current.setLatitude(mapPoint.getMapPointGeoCoord().latitude);
-            current.setLongitude(mapPoint.getMapPointGeoCoord().longitude);
             Location dest = new Location("missionPoint");
             for (int i = 0; i < staticData.missionData.size(); i++) {
                 dest.setLatitude(staticData.missionData.get(i).getmLat());
@@ -447,7 +487,9 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
             R.id.mission_result_get_tip,
             R.id.mission_finish_confirm,
             R.id.mission_result_close,
-            R.id.mission_finish_hint_close})
+            R.id.mission_finish_hint_close,
+            R.id.menu_map, R.id.menu_record, R.id.menu_my_page,
+            R.id.mission_record_back})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.set_filter:
@@ -551,6 +593,12 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 break;
 
             case R.id.compass:
+                isMapHeading = !isMapHeading;
+                if (isMapHeading) {
+                    mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOnWithHeading);
+                } else {
+                    mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading);
+                }
                 break;
 
             case R.id.s1:
@@ -592,6 +640,109 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 setMissionFinishScreen(false);
                 setMainScreen(true);
                 break;
+
+
+            case R.id.menu_map:
+                isInMap = true;
+                isMissionIng = false;
+                setMainScreen(true);
+                setMissionFoundScreen(false);
+                setMissionReadyScreen(false);
+                setMissionQuestionScreen(false);
+                setMissionResultScreen(false);
+                setMissionFinishScreen(false);
+                setMissionRecordScreen(false);
+                menuMapText.setTextColor(getResources().getColor(R.color.mainThemeColor));
+                menuMapImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_map_act));
+
+                menuRecordText.setTextColor(Color.parseColor("#80000000"));
+                menuRecordImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_history));
+
+                menuMyPageText.setTextColor(Color.parseColor("#80000000"));
+                menuMyPageImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_mypage));
+                break;
+
+            case R.id.menu_record:
+                isInMap = false;
+                isMissionIng = true;
+                setMainScreen(false);
+                setMissionFoundScreen(false);
+                setMissionReadyScreen(false);
+                setMissionQuestionScreen(false);
+                setMissionResultScreen(false);
+                setMissionFinishScreen(false);
+                setMissionRecordScreen(true);
+                naviBar.setVisibility(View.VISIBLE);
+                menuRecordText.setTextColor(getResources().getColor(R.color.mainThemeColor));
+                menuRecordImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_history_act));
+
+                menuMapText.setTextColor(Color.parseColor("#80000000"));
+                menuMapImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_map));
+
+                menuMyPageText.setTextColor(Color.parseColor("#80000000"));
+                menuMyPageImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_mypage));
+                break;
+
+            case R.id.menu_my_page:
+                isInMap = false;
+                isMissionIng = true;
+                setMainScreen(false);
+                setMissionFoundScreen(false);
+                setMissionReadyScreen(false);
+                setMissionQuestionScreen(false);
+                setMissionResultScreen(false);
+                setMissionFinishScreen(false);
+                menuMyPageText.setTextColor(getResources().getColor(R.color.mainThemeColor));
+                menuMyPageImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_mypage_act));
+
+                menuMapText.setTextColor(Color.parseColor("#80000000"));
+                menuMapImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_map));
+
+                menuRecordText.setTextColor(Color.parseColor("#80000000"));
+                menuRecordImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_history));
+                break;
+
+            case R.id.mission_record_back:
+                menuMap.performClick();
+                break;
+        }
+    }
+
+    private void setMissionRecordScreen(boolean on) {
+        ArrayList<MissionRecordItem> datas = new ArrayList<>();
+        Call<JsonObject> getAllUserMissions = api.getAllUserMissions(pref.getUserId());
+        MissionRecordListAdapter adapter = new MissionRecordListAdapter(datas, this);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
+        missionRecordList.setAdapter(adapter);
+        missionRecordList.setLayoutManager(gridLayoutManager);
+        getAllUserMissions.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                JsonObject obj = response.body();
+                JsonArray ary = obj.getAsJsonArray("result");
+                for(int i = 0 ; i < ary.size() ; i++){
+                    JsonObject resObj = ary.get(i).getAsJsonObject();
+                    datas.add(new MissionRecordItem(
+                            resObj.get("M_IMG").getAsString(),
+                            resObj.get("M_NAME").getAsString(),
+                            TextUtils.isEmpty(resObj.get("M_ANS_TIME").getAsString()) ?
+                                    resObj.get("M_GIVE_UP_TIME").getAsString() :
+                                    resObj.get("M_ANS_TIME").getAsString()
+                    ));
+                }
+                adapter.notifyDataSetChanged();
+            }
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "미션 기록을 불러오는데 문제가 발생했습니다.", Toast.LENGTH_SHORT).show();
+                menuMap.performClick();
+            }
+        });
+
+        if(on){
+            missionRecordScreen.setVisibility(View.VISIBLE);
+        } else{
+            missionRecordScreen.setVisibility(View.GONE);
         }
     }
 
@@ -671,7 +822,8 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 String.valueOf(currentMission.getmLng()),
                 0,
                 "",
-                timeNow
+                timeNow,
+                currentMission.getmReadyImgUrl()
         );
         putUserGiveUp.enqueue(new Callback<String>() {
             @Override
@@ -707,7 +859,8 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 String.valueOf(currentMission.getmLng()),
                 currentMission.getmAns().equals(ans) ? 1 : 0,
                 timeNow,
-                "");
+                "",
+                currentMission.getmReadyImgUrl());
 
         putUserAnswer.enqueue(new Callback<String>() {
             @Override
