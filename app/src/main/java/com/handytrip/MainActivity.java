@@ -35,14 +35,20 @@ import com.handytrip.Structures.MissionData;
 import com.handytrip.Structures.MissionRecordItem;
 import com.handytrip.Utils.AutoLayout;
 import com.handytrip.Utils.BaseActivity;
+import com.handytrip.Utils.BusEvents;
 import com.handytrip.Utils.CustomCalloutBalloonAdapter;
+import com.handytrip.Utils.GlobalBus;
 import com.handytrip.Utils.MissionRecordListAdapter;
 import com.handytrip.Utils.StaticData;
+import com.squareup.otto.Subscribe;
 
 import net.daum.mf.map.api.CameraUpdateFactory;
 import net.daum.mf.map.api.MapPOIItem;
 import net.daum.mf.map.api.MapPoint;
 import net.daum.mf.map.api.MapView;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -60,7 +66,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends BaseActivity implements MapView.CurrentLocationEventListener, MapView.MapViewEventListener {
+public class MainActivity extends BaseActivity implements MapView.CurrentLocationEventListener, MapView.MapViewEventListener, MapView.POIItemEventListener {
     MapView mapView;
     RelativeLayout mapViewContainer;
     ImageView mission_ready_img;
@@ -286,6 +292,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         mapView.setMapViewEventListener(this);
         mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOnWithHeading);
         mapView.setCalloutBalloonAdapter(new CustomCalloutBalloonAdapter());
+        mapView.setPOIItemEventListener(this);
 
         setFilterScreen();
 
@@ -310,6 +317,34 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 break;
         }
         rating.setRating(rate);
+    }
+
+    private void getSelectedMissionInfo(MapPOIItem mapPOIItem) {
+        if (current == null) {
+            Toast.makeText(this, "아직 GPS정보를 수신하지 못했습니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try {
+            boolean isDone = ((MissionData) mapPOIItem.getUserObject()).isDone();
+            if (!isDone) {
+                Location selectedMission = new Location("missionPoint");
+                selectedMission.setLongitude(((MissionData) mapPOIItem.getUserObject()).getmLng());
+                selectedMission.setLatitude(((MissionData) mapPOIItem.getUserObject()).getmLat());
+                if (getDistance(current, selectedMission) <= 60) {
+                    currentMission = (MissionData) mapPOIItem.getUserObject();
+                    setMainScreen(false);
+                    setMissionReadyScreen(true);
+                } else {
+                    Toast.makeText(this, "미션 스팟 50미터 이내에서 진행해주세요.", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(MainActivity.this, "이미 완료한 미션입니다.", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "미션 정보를 불러올 수 없습니다.", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     @Override
@@ -337,6 +372,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                         public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                             boolean isGiveUp = false;
                             boolean isCorrectBefore = false;
+                            boolean isFirstTime = true;
                             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
                             Date date = new Date();
                             Date missionDate = new Date();
@@ -364,6 +400,13 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                                     isCorrectBefore = false;
                                 }
 
+                                if (uMission.get("IS_FIRST_TIME").getAsInt() == 1) {
+                                    isFirstTime = true;
+                                } else {
+                                    isFirstTime = false;
+                                }
+
+
                                 try {
                                     date = dateFormat.parse(dateFormat.format(new Date()));
                                 } catch (Exception e) {
@@ -372,7 +415,11 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
 
                                 if (!isCorrectBefore || isGiveUp) {
                                     if (date.after(missionDate)) {
-                                        popMissionFound(currentMission.getmTheme(), currentMission.getmRate());
+                                        if (isFirstTime) {
+                                            popMissionFound(currentMission.getmTheme(), currentMission.getmRate());
+                                        }
+                                    } else {
+                                        isMissionIng = false;
                                     }
                                 }
                             }
@@ -406,37 +453,44 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
 
     }
 
+    @Subscribe
+    public void setPins(BusEvents.setPins pins) {
+        setMissionPins();
+    }
+
     @Override
     public void onMapViewInitialized(MapView mapView) {
         mapView.setCurrentLocationRadius(50);
         mapView.setCurrentLocationRadiusStrokeColor(Color.argb(Integer.parseInt("4c", 16), Integer.parseInt("67", 16), Integer.parseInt("5d", 16), Integer.parseInt("c6", 16)));
         mapView.setCurrentLocationRadiusFillColor(Color.argb(Integer.parseInt("4c", 16), Integer.parseInt("67", 16), Integer.parseInt("5d", 16), Integer.parseInt("c6", 16)));
-
-        MapPOIItem[] mapPOIItems = new MapPOIItem[staticData.missionData.size()];
-        for (int i = 0; i < staticData.missionData.size(); i++) {
-            MapPOIItem marker = new MapPOIItem();
-            marker.setItemName(staticData.missionData.get(i).getmName());
-            marker.setMapPoint(MapPoint.mapPointWithGeoCoord(staticData.missionData.get(i).getmLat(), staticData.missionData.get(i).getmLng()));
-            marker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
-            switch (staticData.missionData.get(i).getmTheme()) {
-                case 0:
-                    marker.setCustomImageResourceId(R.drawable.pin_compelete);
-                    break;
-                case 1:
-                    marker.setCustomImageResourceId(R.drawable.pin_navy_history);
-                    break;
-                case 2:
-                    marker.setCustomImageResourceId(R.drawable.pin_experience);
-                    break;
-                case 3:
-                    marker.setCustomImageResourceId(R.drawable.pin_landscape);
-                    break;
-            }
-            marker.setCustomImageAutoscale(true);
-            marker.setCustomImageAnchor(0.5f, 1.0f);
-            mapPOIItems[i] = marker;
-        }
-        mapView.addPOIItems(mapPOIItems);
+        getDoneMissions();
+//        setMissionPins();
+//        MapPOIItem[] mapPOIItems = new MapPOIItem[staticData.missionData.size()];
+//        for (int i = 0; i < staticData.missionData.size(); i++) {
+//            MapPOIItem marker = new MapPOIItem();
+//            marker.setItemName(staticData.missionData.get(i).getmName());
+//            marker.setMapPoint(MapPoint.mapPointWithGeoCoord(staticData.missionData.get(i).getmLat(), staticData.missionData.get(i).getmLng()));
+//            marker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+//            switch (staticData.missionData.get(i).getmTheme()) {
+//                case 0:
+//                    marker.setCustomImageResourceId(R.drawable.pin_compelete);
+//                    break;
+//                case 1:
+//                    marker.setCustomImageResourceId(R.drawable.pin_navy_history);
+//                    break;
+//                case 2:
+//                    marker.setCustomImageResourceId(R.drawable.pin_experience);
+//                    break;
+//                case 3:
+//                    marker.setCustomImageResourceId(R.drawable.pin_landscape);
+//                    break;
+//            }
+//            marker.setUserObject(staticData.missionData.get(i));
+//            marker.setCustomImageAutoscale(true);
+//            marker.setCustomImageAnchor(0.5f, 1.0f);
+//            mapPOIItems[i] = marker;
+//        }
+//        mapView.addPOIItems(mapPOIItems);
     }
 
     @Override
@@ -569,6 +623,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 isMissionIng = false;
                 setMissionReadyScreen(false);
                 setMainScreen(true);
+                sendGiveUp();
                 break;
 
             case R.id.mission_ready_next:
@@ -708,6 +763,100 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         }
     }
 
+    private void sendNotificationThatWeMetBefore() {
+        Call<String> sendNotificationThatWeMetBefore = api.isFirstMeet(
+                pref.getUserId(),
+                currentMission.getmName(),
+                String.valueOf(currentMission.getmLat()),
+                String.valueOf(currentMission.getmLng())
+        );
+        sendNotificationThatWeMetBefore.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                Log.d("updateFirstMeetCondition", response.body());
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void setDoneMissionPins() {
+
+        Call<JsonObject> getUserDoneMissions = api.getUserDoneMissions(pref.getUserId());
+        getUserDoneMissions.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                staticData.doneData.clear();
+                JsonObject object = response.body().getAsJsonObject();
+                JsonArray array = object.getAsJsonArray("result");
+                for (int i = 0; i < array.size(); i++) {
+                    JsonObject res = array.get(i).getAsJsonObject();
+                    staticData.doneData.add(new MissionData(
+                            res.get("M_NAME").getAsString(),
+                            res.get("M_LAT").getAsDouble(),
+                            res.get("M_LNG").getAsDouble()
+                    ));
+                }
+
+                MapPOIItem[] doneItems = new MapPOIItem[staticData.doneData.size()];
+
+                for (int i = 0; i < staticData.doneData.size(); i++) {
+                    MapPOIItem marker = new MapPOIItem();
+                    marker.setItemName(staticData.doneData.get(i).getmName());
+                    marker.setMapPoint(MapPoint.mapPointWithGeoCoord(staticData.doneData.get(i).getmLat(), staticData.doneData.get(i).getmLng()));
+                    marker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+                    marker.setCustomImageResourceId(R.drawable.pin_completed);
+                    marker.setCustomImageAutoscale(true);
+                    marker.setCustomImageAnchor(0.5f, 1.0f);
+                    marker.setUserObject(staticData.doneData.get(i));
+//                marker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
+                    doneItems[i] = marker;
+                }
+                mapView.addPOIItems(doneItems);
+
+                BusEvents.setPins pins = new BusEvents.setPins();
+                GlobalBus.getBus().post(pins);
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+
+            }
+        });
+
+
+    }
+
+    private void getDoneMissions() {
+        Call<JsonObject> getUserDoneMissions = api.getUserDoneMissions(pref.getUserId());
+        getUserDoneMissions.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                staticData.doneData.clear();
+                JsonObject object = response.body().getAsJsonObject();
+                JsonArray array = object.getAsJsonArray("result");
+                for (int i = 0; i < array.size(); i++) {
+                    JsonObject res = array.get(i).getAsJsonObject();
+                    staticData.doneData.add(new MissionData(
+                            res.get("M_NAME").getAsString(),
+                            res.get("M_LAT").getAsDouble(),
+                            res.get("M_LNG").getAsDouble()
+                    ));
+                }
+                BusEvents.setPins pins = new BusEvents.setPins();
+                GlobalBus.getBus().post(pins);
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+
+            }
+        });
+    }
+
     private void setMissionRecordScreen(boolean on) {
         ArrayList<MissionRecordItem> datas = new ArrayList<>();
         Call<JsonObject> getAllUserMissions = api.getAllUserMissions(pref.getUserId());
@@ -720,7 +869,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 JsonObject obj = response.body();
                 JsonArray ary = obj.getAsJsonArray("result");
-                for(int i = 0 ; i < ary.size() ; i++){
+                for (int i = 0; i < ary.size(); i++) {
                     JsonObject resObj = ary.get(i).getAsJsonObject();
                     datas.add(new MissionRecordItem(
                             resObj.get("M_IMG").getAsString(),
@@ -732,6 +881,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 }
                 adapter.notifyDataSetChanged();
             }
+
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
                 Toast.makeText(MainActivity.this, "미션 기록을 불러오는데 문제가 발생했습니다.", Toast.LENGTH_SHORT).show();
@@ -739,9 +889,9 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
             }
         });
 
-        if(on){
+        if (on) {
             missionRecordScreen.setVisibility(View.VISIBLE);
-        } else{
+        } else {
             missionRecordScreen.setVisibility(View.GONE);
         }
     }
@@ -774,24 +924,14 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         }
     }
 
-    public String getTimeAfter10minutes(String currentDate) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_HHmmss");
-        try {
-            // Get calendar set to current date and time with Singapore time zone
-            Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("Asia/Calcutta"));
-            calendar.setTime(format.parse(currentDate));
-
-            //Set calendar before 10 minutes
-            calendar.add(Calendar.MINUTE, 10);
-            //Formatter
-            DateFormat formatter = new SimpleDateFormat("yyyyMMdd_HHmmss");
-            formatter.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
-            return formatter.format(calendar.getTime());
-        } catch (ParseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return null;
+    public String getTimeAfter10minutes() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        Log.d("timeNow : ", sdf.format(calendar.getTime()));
+        calendar.add(Calendar.MINUTE, 10);
+        Log.d("reMatchTime : ", sdf.format(calendar.getTime()));
+        return sdf.format(calendar.getTime());
     }
 
     public String getTime(String currentDate) {
@@ -812,9 +952,9 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
     }
 
     private void sendGiveUp() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
-        String currentDateandTime = sdf.format(new Date());
-        String timeNow = getTimeAfter10minutes(currentDateandTime);
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+//        String currentDateandTime = sdf.format(new Date());
+        String timeNow = getTimeAfter10minutes();
         Call<String> putUserGiveUp = api.putUserAnswer(
                 pref.getUserId(),
                 currentMission.getmName(),
@@ -846,12 +986,14 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 setMainScreen(true);
             }
         });
+
+        sendNotificationThatWeMetBefore();
     }
 
     private void sendUserAnswer(String ans, int selection) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
-        String currentDateandTime = sdf.format(new Date());
-        String timeNow = getTimeAfter10minutes(currentDateandTime);
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+//        String currentDateandTime = sdf.format(new Date());
+        String timeNow = getTimeAfter10minutes();
         Call<String> putUserAnswer = api.putUserAnswer(
                 pref.getUserId(),
                 currentMission.getmName(),
@@ -881,6 +1023,8 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 t.printStackTrace();
             }
         });
+
+        sendNotificationThatWeMetBefore();
     }
 
     private void setMissionResultScreen(boolean on) {
@@ -1047,49 +1191,70 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         }
     }
 
+    private MapPOIItem[] removeNull(MapPOIItem[] origin) {
+        ArrayList<MapPOIItem> arrayList = new ArrayList<>();
+        for (int i = 0; i < origin.length; i++) {
+            if (origin[i] != null) {
+                arrayList.add(origin[i]);
+            }
+        }
+        MapPOIItem[] resArray = arrayList.toArray(new MapPOIItem[arrayList.size()]);
+        return resArray;
+    }
+
     private void setMissionPins() {
         mapView.removeAllPOIItems();
-        ArrayList<MissionData> doneData = new ArrayList<>();
         ArrayList<MissionData> historyData = new ArrayList<>();
         ArrayList<MissionData> experienceData = new ArrayList<>();
         ArrayList<MissionData> sightData = new ArrayList<>();
+        ArrayList<MissionData> doneData = new ArrayList<>();
         for (int i = 0; i < staticData.missionData.size(); i++) {
             switch (staticData.missionData.get(i).getmTheme()) {
-                case 0:
-                    doneData.add(staticData.missionData.get(i));
-                    break;
+//                case 0:
+//                    doneData.add(staticData.missionData.get(i));
+//                    break;
                 case 1:
-                    historyData.add(staticData.missionData.get(i));
+                    if (!staticData.missionData.get(i).isDone())
+                        historyData.add(staticData.missionData.get(i));
+                    else
+                        doneData.add(staticData.missionData.get(i));
                     break;
                 case 2:
-                    experienceData.add(staticData.missionData.get(i));
+                    if (!staticData.missionData.get(i).isDone())
+                        experienceData.add(staticData.missionData.get(i));
+                    else
+                        doneData.add(staticData.missionData.get(i));
                     break;
                 case 3:
-                    sightData.add(staticData.missionData.get(i));
+                    if (!staticData.missionData.get(i).isDone())
+                        sightData.add(staticData.missionData.get(i));
+                    else
+                        doneData.add(staticData.missionData.get(i));
                     break;
             }
         }
-        MapPOIItem[] doneItems = new MapPOIItem[doneData.size()];
+
         MapPOIItem[] historyItems = new MapPOIItem[historyData.size()];
         MapPOIItem[] experienceItems = new MapPOIItem[experienceData.size()];
         MapPOIItem[] sightItems = new MapPOIItem[sightData.size()];
-
+        MapPOIItem[] doneItems = new MapPOIItem[doneData.size()];
 
         if (staticData.filter.isDone()) {
+//            setDoneMissionPins();
             for (int i = 0; i < doneData.size(); i++) {
                 MapPOIItem marker = new MapPOIItem();
                 marker.setItemName(doneData.get(i).getmName());
                 marker.setMapPoint(MapPoint.mapPointWithGeoCoord(doneData.get(i).getmLat(), doneData.get(i).getmLng()));
                 marker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
-                marker.setCustomImageResourceId(R.drawable.pin_compelete);
+                marker.setCustomImageResourceId(R.drawable.pin_completed);
                 marker.setCustomImageAutoscale(true);
                 marker.setCustomImageAnchor(0.5f, 1.0f);
-//                marker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
+                marker.setUserObject(doneData.get(i));
                 doneItems[i] = marker;
             }
-            mapView.addPOIItems(doneItems);
+            if (doneItems.length > 0)
+                mapView.addPOIItems(doneItems);
         }
-
 
         if (staticData.filter.isHistory()) {
             for (int i = 0; i < historyData.size(); i++) {
@@ -1100,13 +1265,12 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 marker.setCustomImageResourceId(R.drawable.pin_navy_history);
                 marker.setCustomImageAutoscale(true);
                 marker.setCustomImageAnchor(0.5f, 1.0f);
-//                marker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
+                marker.setUserObject(historyData.get(i));
                 historyItems[i] = marker;
             }
-            mapView.addPOIItems(historyItems);
+            if (historyItems.length > 0)
+                mapView.addPOIItems(historyItems);
         }
-
-
         if (staticData.filter.isExperience()) {
             for (int i = 0; i < experienceData.size(); i++) {
                 MapPOIItem marker = new MapPOIItem();
@@ -1116,10 +1280,11 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 marker.setCustomImageResourceId(R.drawable.pin_experience);
                 marker.setCustomImageAutoscale(true);
                 marker.setCustomImageAnchor(0.5f, 1.0f);
-//                marker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
+                marker.setUserObject(experienceData.get(i));
                 experienceItems[i] = marker;
             }
-            mapView.addPOIItems(experienceItems);
+            if (experienceItems.length > 0)
+                mapView.addPOIItems(experienceItems);
         }
 
 
@@ -1129,13 +1294,14 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 marker.setItemName(sightData.get(i).getmName());
                 marker.setMapPoint(MapPoint.mapPointWithGeoCoord(sightData.get(i).getmLat(), sightData.get(i).getmLng()));
                 marker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
-                marker.setCustomImageResourceId(R.drawable.pin_experience);
+                marker.setCustomImageResourceId(R.drawable.pin_landscape);
                 marker.setCustomImageAutoscale(true);
                 marker.setCustomImageAnchor(0.5f, 1.0f);
-//                marker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
+                marker.setUserObject(sightData.get(i));
                 sightItems[i] = marker;
             }
-            mapView.addPOIItems(sightItems);
+            if (sightItems.length > 0)
+                mapView.addPOIItems(sightItems);
         }
     }
 
@@ -1183,4 +1349,37 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         }
     }
 
+    @Override
+    public void onPOIItemSelected(MapView mapView, MapPOIItem mapPOIItem) {
+
+    }
+
+    @Override
+    public void onCalloutBalloonOfPOIItemTouched(MapView mapView, MapPOIItem mapPOIItem) {
+        getSelectedMissionInfo(mapPOIItem);
+    }
+
+    @Override
+    public void onCalloutBalloonOfPOIItemTouched(MapView mapView, MapPOIItem
+            mapPOIItem, MapPOIItem.CalloutBalloonButtonType calloutBalloonButtonType) {
+
+    }
+
+    @Override
+    public void onDraggablePOIItemMoved(MapView mapView, MapPOIItem mapPOIItem, MapPoint
+            mapPoint) {
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        GlobalBus.getBus().register(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        GlobalBus.getBus().unregister(this);
+    }
 }

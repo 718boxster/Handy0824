@@ -18,8 +18,11 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
+import com.handytrip.Structures.MissionData;
 import com.handytrip.Utils.AutoLayout;
 import com.handytrip.Utils.BaseActivity;
 
@@ -151,9 +154,6 @@ public class LoginActivity extends BaseActivity {
                 login.enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(Call<String> call, Response<String> response) {
-                        if (progressDialog.isShowing())
-                            progressDialog.dismiss();
-
                         if(response.body().toString().equals("F")){
                             Toast.makeText(LoginActivity.this, "통신이 원활하지 않습니다.", Toast.LENGTH_SHORT).show();
                         } else if(response.body().toString().equals("LOGIN_FAILED")){
@@ -161,9 +161,49 @@ public class LoginActivity extends BaseActivity {
                         } else if(response.body().toString().equals("LOGIN_SUCCESS")){
                             pref.setUserId(uId);
                             pref.setUserPw(uPw);
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(intent);
-                            finish();
+                            Call<JsonObject> getUserDoneMissions = api.getUserDoneMissions(pref.getUserId());
+                            getUserDoneMissions.enqueue(new Callback<JsonObject>() {
+                                @Override
+                                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+
+                                    JsonObject obj = response.body();
+                                    JsonArray array = obj.getAsJsonArray("result");
+                                    staticData.doneData.clear();
+                                    for(int i = 0 ; i < array.size() ; i++){
+                                        JsonObject res = array.get(i).getAsJsonObject();
+                                        staticData.doneData.add(new MissionData(
+                                                res.get("M_NAME").getAsString(),
+                                                res.get("M_LAT").getAsDouble(),
+                                                res.get("M_LNG").getAsDouble()
+                                        ));
+                                    }
+
+                                    for(int i = 0 ; i < staticData.missionData.size() ; i++){
+                                        for(int j = 0 ; j < staticData.doneData.size() ; j++){
+                                            if(staticData.doneData.get(j).getmName().equals(staticData.missionData.get(i).getmName())
+                                            && staticData.doneData.get(j).getmLat() == staticData.missionData.get(i).getmLat()
+                                            && staticData.doneData.get(j).getmLng() == staticData.missionData.get(i).getmLng()){
+                                                staticData.missionData.get(i).setDone(true);
+                                            }
+                                        }
+                                    }
+
+                                    if (progressDialog.isShowing())
+                                        progressDialog.dismiss();
+                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                }
+
+                                @Override
+                                public void onFailure(Call<JsonObject> call, Throwable t) {
+                                    if (progressDialog.isShowing())
+                                        progressDialog.dismiss();
+                                    Toast.makeText(LoginActivity.this, "통신이 원활하지 않습니다.", Toast.LENGTH_SHORT).show();
+                                }
+
+                            });
+
                         }
                     }
 

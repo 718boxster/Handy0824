@@ -29,4 +29,10 @@ public interface RetrofitAPI {
 
     @GET("get_all_user_missions.php")
     Call<JsonObject> getAllUserMissions(@Query("u_id") String u_id);
+
+    @GET("detect_is_first_meet.php")
+    Call<String> isFirstMeet(@Query("u_id") String u_id, @Query("m_name") String m_name, @Query("m_lat") String m_lat, @Query("m_lng") String m_lng);
+
+    @GET("get_user_done_missions.php")
+    Call<JsonObject> getUserDoneMissions(@Query("u_id") String u_id);
 }

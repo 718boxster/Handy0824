@@ -202,7 +202,7 @@ public class MissionData {
         this.s3 = s3;
         this.s4 = s4;
         this.ansTime = ansTime;
-        this.isDone = isDone;
+        this.isDone = false;
     }
 
     public MissionData(String mName, String mPlace, double mLat, double mLng, int mTheme, int mRate, String mReadyText, String mReadyImgUrl, String mHintText, String mHintImgUrl, String mTipText, String mTipImgUrl, String mQuest, String mAns, String s1, String s2, String s3, String s4) {
@@ -224,6 +224,14 @@ public class MissionData {
         this.s2 = s2;
         this.s3 = s3;
         this.s4 = s4;
+        this.isDone = false;
+    }
+
+    public MissionData(String mName, double mLat, double mLng){
+        this.mName = mName;
+        this.mLat = mLat;
+        this.mLng = mLng;
+        this.isDone = true;
     }
 
     public MissionData() {
