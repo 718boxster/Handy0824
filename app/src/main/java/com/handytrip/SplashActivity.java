@@ -55,49 +55,51 @@ public class SplashActivity extends BaseActivity {
                     for (int i = 0; i < allMissionsArray.size(); i++) {
                         JsonObject mission = allMissionsArray.get(i).getAsJsonObject();
                         try {
-                            staticData.missionData.add(new MissionData(
-                                    mission.get("M_NAME").getAsString(),
-                                    mission.get("M_PLACE").getAsString(),
-                                    mission.get("M_LAT").getAsDouble(),
-                                    mission.get("M_LNG").getAsDouble(),
-                                    mission.get("M_THEME").getAsInt(),
-                                    mission.get("M_RATE").getAsInt(),
-                                    mission.get("M_READY_T").getAsString(),
-                                    staticData.IMG_BASE_URL + mission.get("M_READY_IMG").getAsString(),
-                                    mission.get("M_HINT_T").getAsString(),
-                                    staticData.IMG_BASE_URL + mission.get("M_HINT_IMG").getAsString(),
-                                    mission.get("M_TIP_T").getAsString(),
-                                    staticData.IMG_BASE_URL + mission.get("M_TIP_IMG").getAsString(),
-                                    mission.get("M_QUEST_T").getAsString(),
-                                    mission.get("ANS").getAsString(),
-                                    mission.get("S_1").getAsString(),
-                                    mission.get("S_2").getAsString(),
-                                    mission.get("S_3").getAsString(),
-                                    mission.get("S_4").getAsString()
-                            ));
+                            MissionData addData = new MissionData();
+                            addData.setmName(mission.get("M_NAME").getAsString());
+                            addData.setmPlace(mission.get("M_PLACE").getAsString());
+                            addData.setmLat(mission.get("M_LAT").getAsDouble());
+                            addData.setmLng(mission.get("M_LNG").getAsDouble());
+                            addData.setmTheme(mission.get("M_THEME").getAsInt());
+                            addData.setmRate(mission.get("M_RATE").getAsInt());
+                            addData.setmReadyText(mission.get("M_READY_T").getAsString());
+                            addData.setmReadyImgUrl(staticData.IMG_BASE_URL + mission.get("M_READY_IMG").getAsString());
+                            addData.setmHintText(mission.get("M_HINT_T").getAsString());
+                            addData.setmHintImgUrl(staticData.IMG_BASE_URL + mission.get("M_HINT_IMG").getAsString());
+                            addData.setmTipText(mission.get("M_TIP_T").getAsString());
+                            addData.setmTipImgUrl( staticData.IMG_BASE_URL + mission.get("M_TIP_IMG").getAsString());
+                            addData.setmQuest(mission.get("M_QUEST_T").getAsString());
+                            addData.setmAns(mission.get("ANS").getAsString());
+                            addData.setS1(mission.get("S_1").getAsString());
+                            addData.setS2(mission.get("S_2").getAsString());
+                            addData.setS3(mission.get("S_3").getAsString());
+                            addData.setS4(mission.get("S_4").getAsString());
+                            addData.setEssay(false);
+                            staticData.missionData.add(addData);
                         } catch (Exception e){
                             e.printStackTrace();
 //                            Toast.makeText(SplashActivity.this, "미션 정보를 받아오는데 실패했습니다.", Toast.LENGTH_SHORT).show();
-                            staticData.missionData.add(new MissionData(
-                                    mission.get("M_NAME").getAsString(),
-                                    mission.get("M_PLACE").getAsString(),
-                                    mission.get("M_LAT").getAsDouble(),
-                                    mission.get("M_LNG").getAsDouble(),
-                                    mission.get("M_THEME").getAsInt(),
-                                    mission.get("M_RATE").getAsInt(),
-                                    mission.get("M_READY_T").getAsString(),
-                                    staticData.IMG_BASE_URL + mission.get("M_READY_IMG").getAsString(),
-                                    mission.get("M_HINT_T").getAsString(),
-                                    staticData.IMG_BASE_URL + mission.get("M_HINT_IMG").getAsString(),
-                                    mission.get("M_TIP_T").getAsString(),
-                                    staticData.IMG_BASE_URL + mission.get("M_TIP_IMG").getAsString(),
-                                    mission.get("M_QUEST_T").getAsString(),
-                                    mission.get("ANS").getAsString(),
-                                    "",
-                                    "",
-                                    "",
-                                    ""
-                            ));
+                            MissionData addData = new MissionData();
+                            addData.setmName(mission.get("M_NAME").getAsString());
+                            addData.setmPlace(mission.get("M_PLACE").getAsString());
+                            addData.setmLat(mission.get("M_LAT").getAsDouble());
+                            addData.setmLng(mission.get("M_LNG").getAsDouble());
+                            addData.setmTheme(mission.get("M_THEME").getAsInt());
+                            addData.setmRate(mission.get("M_RATE").getAsInt());
+                            addData.setmReadyText(mission.get("M_READY_T").getAsString());
+                            addData.setmReadyImgUrl(staticData.IMG_BASE_URL + mission.get("M_READY_IMG").getAsString());
+                            addData.setmHintText(mission.get("M_HINT_T").getAsString());
+                            addData.setmHintImgUrl(staticData.IMG_BASE_URL + mission.get("M_HINT_IMG").getAsString());
+                            addData.setmTipText(mission.get("M_TIP_T").getAsString());
+                            addData.setmTipImgUrl( staticData.IMG_BASE_URL + mission.get("M_TIP_IMG").getAsString());
+                            addData.setmQuest(mission.get("M_QUEST_T").getAsString());
+                            addData.setmAns(mission.get("ANS").getAsString());
+                            addData.setS1(mission.get("S_1").getAsString());
+                            addData.setS2(mission.get("S_2").getAsString());
+                            addData.setS3(mission.get("S_3").getAsString());
+                            addData.setS4(mission.get("S_4").getAsString());
+                            addData.setEssay(true);
+                            staticData.missionData.add(addData);
                         }
                     }
 

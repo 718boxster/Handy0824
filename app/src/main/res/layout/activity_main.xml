@@ -831,6 +831,46 @@
                 android:orientation="vertical"
                 android:paddingTop="100px">
 
+                <EditText
+                    android:visibility="gone"
+                    android:id="@+id/input_answer_subject"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="60px"
+                    android:layout_marginRight="60px"
+                    android:layout_marginBottom="70px"
+                    android:background="@drawable/transparent_rounded_box_selector"
+                    android:clickable="true"
+                    android:gravity="center_vertical|left"
+                    android:paddingLeft="30px"
+                    android:paddingTop="30px"
+                    android:paddingBottom="30px"
+                    android:tag="B"
+                    android:hint="정답을 입력해주세요."
+                    android:textColorHint="@color/subTextColor"
+                    android:textColor="#FFFFFF"
+                    android:textSize="55px"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:visibility="gone"
+                    android:id="@+id/confirm_answer_subject"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="60px"
+                    android:layout_marginRight="60px"
+                    android:layout_marginBottom="70px"
+                    android:background="@drawable/login_btn_selector"
+                    android:clickable="true"
+                    android:gravity="center"
+                    android:paddingTop="30px"
+                    android:paddingBottom="30px"
+                    android:tag="B"
+                    android:text="정답 제출"
+                    android:textColor="@color/mainThemeColor"
+                    android:textSize="55px"
+                    android:textStyle="bold"/>
+
                 <TextView
                     android:id="@+id/s1"
                     android:layout_width="match_parent"

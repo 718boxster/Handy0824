@@ -21,6 +21,23 @@ public class MissionData {
     private String s4;
     private String ansTime;
     private boolean isDone;
+    private boolean isEssay;
+
+    public void setmLat(double mLat) {
+        this.mLat = mLat;
+    }
+
+    public void setmLng(double mLng) {
+        this.mLng = mLng;
+    }
+
+    public boolean isEssay() {
+        return isEssay;
+    }
+
+    public void setEssay(boolean essay) {
+        isEssay = essay;
+    }
 
     public String getmName() {
         return mName;

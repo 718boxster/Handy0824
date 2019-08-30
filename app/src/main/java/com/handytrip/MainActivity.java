@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
@@ -47,9 +48,6 @@ import net.daum.mf.map.api.MapPOIItem;
 import net.daum.mf.map.api.MapPoint;
 import net.daum.mf.map.api.MapView;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -76,6 +74,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
     MissionData currentMission;
     boolean isMissionIng = false;
     boolean isCurrentMissionCorrect = false;
+
 
     boolean isFilterScreenOn = false;
     boolean isMissionFoundScreenOn = false;
@@ -157,6 +156,10 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
     RecyclerView missionRecordList;
     @BindView(R.id.mission_record_screen)
     LinearLayout missionRecordScreen;
+    @BindView(R.id.input_answer_subject)
+    EditText inputAnswerSubject;
+    @BindView(R.id.confirm_answer_subject)
+    TextView confirmAnswerSubject;
 
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -543,7 +546,8 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
             R.id.mission_result_close,
             R.id.mission_finish_hint_close,
             R.id.menu_map, R.id.menu_record, R.id.menu_my_page,
-            R.id.mission_record_back})
+            R.id.mission_record_back,
+            R.id.confirm_answer_subject})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.set_filter:
@@ -759,6 +763,9 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
 
             case R.id.mission_record_back:
                 menuMap.performClick();
+                break;
+
+            case R.id.confirm_answer_subject:
                 break;
         }
     }
@@ -1141,16 +1148,41 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                         }
                     });
             missionQuestionText.setText(currentMission.getmQuest());
-            s1.setText(currentMission.getS1());
-            s2.setText(currentMission.getS2());
-            s3.setText(currentMission.getS3());
-            s4.setText(currentMission.getS4());
+            if (currentMission.isEssay()) {
+                s1.setVisibility(View.GONE);
+                s2.setVisibility(View.GONE);
+                s3.setVisibility(View.GONE);
+                s4.setVisibility(View.GONE);
 
-            res1.setText(currentMission.getS1());
-            res2.setText(currentMission.getS2());
-            res3.setText(currentMission.getS3());
-            res4.setText(currentMission.getS4());
+                res2.setVisibility(View.GONE);
+                res3.setVisibility(View.GONE);
+                res4.setVisibility(View.GONE);
 
+                inputAnswerSubject.setVisibility(View.VISIBLE);
+                confirmAnswerSubject.setVisibility(View.VISIBLE);
+            } else {
+                s1.setVisibility(View.VISIBLE);
+                s2.setVisibility(View.VISIBLE);
+                s3.setVisibility(View.VISIBLE);
+                s4.setVisibility(View.VISIBLE);
+
+                res2.setVisibility(View.VISIBLE);
+                res3.setVisibility(View.VISIBLE);
+                res4.setVisibility(View.VISIBLE);
+
+                s1.setText(currentMission.getS1());
+                s2.setText(currentMission.getS2());
+                s3.setText(currentMission.getS3());
+                s4.setText(currentMission.getS4());
+
+                res1.setText(currentMission.getS1());
+                res2.setText(currentMission.getS2());
+                res3.setText(currentMission.getS3());
+                res4.setText(currentMission.getS4());
+
+                inputAnswerSubject.setVisibility(View.GONE);
+                confirmAnswerSubject.setVisibility(View.GONE);
+            }
         } else {
             missionQuestionScreen.setVisibility(View.GONE);
         }
@@ -1381,5 +1413,9 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
     protected void onPause() {
         super.onPause();
         GlobalBus.getBus().unregister(this);
+    }
+
+    @OnClick(R.id.confirm_answer_subject)
+    public void onViewClicked() {
     }
 }

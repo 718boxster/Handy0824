@@ -19,7 +19,7 @@
     </style>
 
     <style name="setMainScreenVisibility" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:visibility">visible</item>
+        <item name="android:visibility">gone</item>
     </style>
 
     <style name="setFilterScreenVisibility" parent="Theme.AppCompat.Light.NoActionBar">
@@ -35,7 +35,7 @@
     </style>
 
     <style name="setMissionQuestionScreenVisibility" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:visibility">gone</item>
+        <item name="android:visibility">visible</item>
     </style>
 
     <style name="setMissionResultScreenVisibility" parent="Theme.AppCompat.Light.NoActionBar">
