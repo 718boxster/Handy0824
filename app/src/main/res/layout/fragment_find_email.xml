@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingRight="30px"
+    android:paddingLeft="30px"
+    android:paddingTop="50px"
+    android:paddingBottom="50px"
+    android:background="@color/mainThemeColor"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditText
+        android:id="@+id/input_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:background="@drawable/inputbox_rounded"
+        android:gravity="left"
+        android:hint="휴대폰 번호를 입력하세요."
+        android:inputType="phone"
+        android:paddingLeft="30px"
+        android:paddingTop="140px"
+        android:paddingRight="30px"
+        android:paddingBottom="30px"
+        android:tag="B"
+        android:textColor="#FFFFFF"
+        android:textColorHint="@color/subTextColor"
+        android:textSize="40px"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:id="@+id/input_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40px"
+        android:animateLayoutChanges="true"
+        android:gravity="left"
+        android:textSize="40px"
+        android:inputType="textPassword"
+        android:paddingLeft="30px"
+        android:paddingRight="30px"
+        android:tag="B"
+        android:textColor="#FFFFFF"
+        android:textColorHint="@color/subTextColor"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/input_email" />
+
+
+    <LinearLayout
+        android:id="@+id/find_and_join"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/input_password">
+
+        <TextView
+            android:layout_marginBottom="120px"
+            android:layout_marginTop="70px"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="40px"
+            android:text="가입한 휴대폰 번호로\n이메일 아이디를 보내드립니다"
+            android:gravity="center"
+            android:textColor="#FFFFFF"
+            android:textSize="35px" />
+
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/confirm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15px"
+        android:layout_marginBottom="15px"
+        android:background="@drawable/login_btn_selector"
+        android:clickable="true"
+        android:elevation="4dp"
+        android:gravity="center"
+        android:padding="30px"
+        android:tag="B"
+        android:text="이메일 아이디 받기"
+        android:textColor="@color/mainThemeColor"
+        android:textSize="50px"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/find_and_join" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

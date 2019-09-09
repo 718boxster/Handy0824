@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -70,36 +71,43 @@ public class SplashActivity extends BaseActivity {
                             addData.setmTipImgUrl( staticData.IMG_BASE_URL + mission.get("M_TIP_IMG").getAsString());
                             addData.setmQuest(mission.get("M_QUEST_T").getAsString());
                             addData.setmAns(mission.get("ANS").getAsString());
-                            addData.setS1(mission.get("S_1").getAsString());
-                            addData.setS2(mission.get("S_2").getAsString());
-                            addData.setS3(mission.get("S_3").getAsString());
-                            addData.setS4(mission.get("S_4").getAsString());
-                            addData.setEssay(false);
+                            if(TextUtils.isEmpty(mission.get("S_1").getAsString())
+                            || TextUtils.isEmpty(mission.get("S_2").getAsString())
+                            || TextUtils.isEmpty(mission.get("S_3").getAsString())
+                            || TextUtils.isEmpty(mission.get("S_4").getAsString())){
+                                addData.setEssay(true);
+                            } else{
+                                addData.setS1(mission.get("S_1").getAsString());
+                                addData.setS2(mission.get("S_2").getAsString());
+                                addData.setS3(mission.get("S_3").getAsString());
+                                addData.setS4(mission.get("S_4").getAsString());
+                                addData.setEssay(false);
+                            }
                             staticData.missionData.add(addData);
                         } catch (Exception e){
                             e.printStackTrace();
 //                            Toast.makeText(SplashActivity.this, "미션 정보를 받아오는데 실패했습니다.", Toast.LENGTH_SHORT).show();
-                            MissionData addData = new MissionData();
-                            addData.setmName(mission.get("M_NAME").getAsString());
-                            addData.setmPlace(mission.get("M_PLACE").getAsString());
-                            addData.setmLat(mission.get("M_LAT").getAsDouble());
-                            addData.setmLng(mission.get("M_LNG").getAsDouble());
-                            addData.setmTheme(mission.get("M_THEME").getAsInt());
-                            addData.setmRate(mission.get("M_RATE").getAsInt());
-                            addData.setmReadyText(mission.get("M_READY_T").getAsString());
-                            addData.setmReadyImgUrl(staticData.IMG_BASE_URL + mission.get("M_READY_IMG").getAsString());
-                            addData.setmHintText(mission.get("M_HINT_T").getAsString());
-                            addData.setmHintImgUrl(staticData.IMG_BASE_URL + mission.get("M_HINT_IMG").getAsString());
-                            addData.setmTipText(mission.get("M_TIP_T").getAsString());
-                            addData.setmTipImgUrl( staticData.IMG_BASE_URL + mission.get("M_TIP_IMG").getAsString());
-                            addData.setmQuest(mission.get("M_QUEST_T").getAsString());
-                            addData.setmAns(mission.get("ANS").getAsString());
-                            addData.setS1(mission.get("S_1").getAsString());
-                            addData.setS2(mission.get("S_2").getAsString());
-                            addData.setS3(mission.get("S_3").getAsString());
-                            addData.setS4(mission.get("S_4").getAsString());
-                            addData.setEssay(true);
-                            staticData.missionData.add(addData);
+//                            MissionData addData = new MissionData();
+//                            addData.setmName(mission.get("M_NAME").getAsString());
+//                            addData.setmPlace(mission.get("M_PLACE").getAsString());
+//                            addData.setmLat(mission.get("M_LAT").getAsDouble());
+//                            addData.setmLng(mission.get("M_LNG").getAsDouble());
+//                            addData.setmTheme(mission.get("M_THEME").getAsInt());
+//                            addData.setmRate(mission.get("M_RATE").getAsInt());
+//                            addData.setmReadyText(mission.get("M_READY_T").getAsString());
+//                            addData.setmReadyImgUrl(staticData.IMG_BASE_URL + mission.get("M_READY_IMG").getAsString());
+//                            addData.setmHintText(mission.get("M_HINT_T").getAsString());
+//                            addData.setmHintImgUrl(staticData.IMG_BASE_URL + mission.get("M_HINT_IMG").getAsString());
+//                            addData.setmTipText(mission.get("M_TIP_T").getAsString());
+//                            addData.setmTipImgUrl( staticData.IMG_BASE_URL + mission.get("M_TIP_IMG").getAsString());
+//                            addData.setmQuest(mission.get("M_QUEST_T").getAsString());
+//                            addData.setmAns(mission.get("ANS").getAsString());
+//                            addData.setS1(mission.get("S_1").getAsString());
+//                            addData.setS2(mission.get("S_2").getAsString());
+//                            addData.setS3(mission.get("S_3").getAsString());
+//                            addData.setS4(mission.get("S_4").getAsString());
+//                            addData.setEssay(true);
+//                            staticData.missionData.add(addData);
                         }
                     }
 

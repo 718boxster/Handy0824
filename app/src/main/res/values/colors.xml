@@ -24,4 +24,7 @@
     <color name="inputboxColor">#d7d7d7</color>
 
     <color name="transparentColor">#b3000000</color>
+
+    <color name="unSelectedTabColor">#b3ffffff</color>
+    <color name="white">#ffffff</color>
 </resources>

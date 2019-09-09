@@ -4,4 +4,7 @@
     <string name="giveup_mission"><u>미션 포기하기</u></string>
     <string name="find_id"><u>계정 찾으러 가기</u></string>
     <string name="join_handytrip"><u>핸디트립 가입하기</u></string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

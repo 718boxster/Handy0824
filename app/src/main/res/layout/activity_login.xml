@@ -37,6 +37,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="3dp"
+        android:layout_marginBottom="3dp"
         android:background="@drawable/appbar_shadow" />
 
     <androidx.constraintlayout.widget.ConstraintLayout

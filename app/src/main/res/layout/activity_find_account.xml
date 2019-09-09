@@ -35,26 +35,25 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="2dp"
+        android:layout_height="3dp"
         android:background="@drawable/appbar_shadow"/>
 
     <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabs"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="120px"
         app:tabIndicatorFullWidth="true">
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="비밀번호 찾기" />
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="가입한 이메일 찾기"/>
+
     </com.google.android.material.tabs.TabLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="3dp"
         android:background="@drawable/appbar_shadow" />
+
+   <androidx.viewpager.widget.ViewPager
+       android:id="@+id/pager"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"/>
 
 </LinearLayout>
