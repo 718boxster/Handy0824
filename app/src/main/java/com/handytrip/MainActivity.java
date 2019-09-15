@@ -1,5 +1,6 @@
 package com.handytrip;
 
+import android.app.Activity;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -8,7 +9,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -24,12 +28,15 @@ import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.android.material.navigation.NavigationView;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.handytrip.Structures.MissionData;
@@ -64,7 +71,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends BaseActivity implements MapView.CurrentLocationEventListener, MapView.MapViewEventListener, MapView.POIItemEventListener {
+public class MainActivity extends BaseActivity implements MapView.CurrentLocationEventListener, MapView.MapViewEventListener, MapView.POIItemEventListener, NavigationView.OnNavigationItemSelectedListener {
     MapView mapView;
     RelativeLayout mapViewContainer;
     ImageView mission_ready_img;
@@ -87,6 +94,10 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
 
 
     boolean isMapHeading = true;
+
+    private static final int MISSION_DISTANCE = 1000000;
+
+    DrawerLayout drawerLayout;
 
     @BindView(R.id.s1)
     TextView s1;
@@ -165,7 +176,9 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onBackPressed() {
-        if (isMissionFoundScreenOn) {
+        if(drawerLayout.isDrawerOpen(GravityCompat.START)){
+            drawerLayout.closeDrawers();
+        } else if (isMissionFoundScreenOn) {
             setMissionFoundScreen(false);
             setMainScreen(true);
         } else if (isMissionReadyScreenOn) {
@@ -277,12 +290,22 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
     @BindView(R.id.mission_question_screen)
     LinearLayout missionQuestionScreen;
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //menu click event
+        switch (item.getItemId()) {
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        drawerLayout = findViewById(R.id.drawerLayout);
         mission_ready_img = findViewById(R.id.mission_ready_img);
         RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), BitmapFactory.decodeResource(getResources(), R.drawable.the_o_twin_three));
         roundedBitmapDrawable.setCornerRadius(5);
@@ -329,14 +352,89 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         }
         try {
             boolean isDone = ((MissionData) mapPOIItem.getUserObject()).isDone();
+            currentMission = (MissionData) mapPOIItem.getUserObject();
+            isMissionIng = true;
             if (!isDone) {
                 Location selectedMission = new Location("missionPoint");
                 selectedMission.setLongitude(((MissionData) mapPOIItem.getUserObject()).getmLng());
                 selectedMission.setLatitude(((MissionData) mapPOIItem.getUserObject()).getmLat());
-                if (getDistance(current, selectedMission) <= 60) {
-                    currentMission = (MissionData) mapPOIItem.getUserObject();
-                    setMainScreen(false);
-                    setMissionReadyScreen(true);
+                if (getDistance(current, selectedMission) <= MISSION_DISTANCE) {
+                    Call<JsonObject> getUserMissions = api.getUserMissions(
+                            pref.getUserId(),
+                            currentMission.getmName(),
+                            String.valueOf(currentMission.getmLat()),
+                            String.valueOf(currentMission.getmLng())
+                    );
+                    getUserMissions.enqueue(new Callback<JsonObject>() {
+                        @Override
+                        public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                            boolean isGiveUp = false;
+                            boolean isCorrectBefore = false;
+                            boolean isFirstTime = false;
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
+                            Date date = new Date();
+                            Date missionDate = new Date();
+
+                            JsonObject resObject = response.body();
+                            JsonArray resArray = resObject.getAsJsonArray("result");
+//                            if (resArray.size() == 0) {
+////                                popMissionFound(currentMission.getmTheme(), currentMission.getmRate());
+//                            } else {
+                            try {
+                                JsonObject uMission = resArray.get(0).getAsJsonObject();
+                                try {
+                                    missionDate = dateFormat.parse(uMission.get("M_ANS_TIME").getAsString());
+                                    isGiveUp = false;
+                                } catch (Exception e) {
+                                    try {
+                                        missionDate = dateFormat.parse(uMission.get("M_GIVE_UP_TIME").getAsString());
+                                        isGiveUp = true;
+                                    } catch (Exception e1) {
+                                        e1.printStackTrace();
+                                    }
+                                }
+                                if (uMission.get("M_IS_CORRECT").getAsInt() == 1) {
+                                    isCorrectBefore = true;
+                                } else {
+                                    isCorrectBefore = false;
+                                }
+
+                                if (uMission.get("IS_FIRST_TIME").getAsInt() == 1) {
+                                    isFirstTime = true;
+                                } else {
+                                    isFirstTime = false;
+                                }
+
+
+                                try {
+                                    date = dateFormat.parse(dateFormat.format(new Date()));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+
+                                if (!isCorrectBefore || isGiveUp) {
+                                    if (date.after(missionDate)) {
+                                        setMainScreen(false);
+                                        setMissionReadyScreen(true);
+                                    } else {
+                                        Toast.makeText(MainActivity.this, "아직 10분이 지나지 않았어요!", Toast.LENGTH_SHORT).show();
+                                        isMissionIng = false;
+                                    }
+                                } else {
+                                    Toast.makeText(MainActivity.this, "이미 완료한 미션입니다.", Toast.LENGTH_SHORT).show();
+                                    isMissionIng = false;
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<JsonObject> call, Throwable t) {
+
+                        }
+                    });
                 } else {
                     Toast.makeText(this, "미션 스팟 50미터 이내에서 진행해주세요.", Toast.LENGTH_SHORT).show();
                 }
@@ -361,7 +459,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
             for (int i = 0; i < staticData.missionData.size(); i++) {
                 dest.setLatitude(staticData.missionData.get(i).getmLat());
                 dest.setLongitude(staticData.missionData.get(i).getmLng());
-                if (getDistance(current, dest) <= 60) {
+                if (getDistance(current, dest) <= MISSION_DISTANCE) {
                     isMissionIng = true;
                     currentMission = staticData.missionData.get(i);
                     Call<JsonObject> getUserMissions = api.getUserMissions(
@@ -375,16 +473,17 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                         public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                             boolean isGiveUp = false;
                             boolean isCorrectBefore = false;
-                            boolean isFirstTime = true;
+                            boolean isFirstTime = false;
                             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
                             Date date = new Date();
                             Date missionDate = new Date();
 
                             JsonObject resObject = response.body();
                             JsonArray resArray = resObject.getAsJsonArray("result");
-                            if (resArray.size() == 0) {
-                                popMissionFound(currentMission.getmTheme(), currentMission.getmRate());
-                            } else {
+//                            if (resArray.size() == 0) {
+////                                popMissionFound(currentMission.getmTheme(), currentMission.getmRate());
+//                            } else {
+                            try {
                                 JsonObject uMission = resArray.get(0).getAsJsonObject();
                                 try {
                                     missionDate = dateFormat.parse(uMission.get("M_ANS_TIME").getAsString());
@@ -425,7 +524,10 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                                         isMissionIng = false;
                                     }
                                 }
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
+
                         }
 
                         @Override
@@ -547,7 +649,8 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
             R.id.mission_finish_hint_close,
             R.id.menu_map, R.id.menu_record, R.id.menu_my_page,
             R.id.mission_record_back,
-            R.id.confirm_answer_subject})
+            R.id.confirm_answer_subject,
+            R.id.open_menu})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.set_filter:
@@ -677,6 +780,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 break;
 
             case R.id.mission_result_get_tip:
+                inputAnswerSubject.setText("");
                 setMissionResultScreen(false);
                 setMissionQuestionScreen(false);
                 setMissionFinish(isCurrentMissionCorrect ? 1 : 0);
@@ -766,8 +870,25 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 break;
 
             case R.id.confirm_answer_subject:
+                sendUserAnswer(inputAnswerSubject.getText().toString());
+                hideKeyboard(this);
+                break;
+
+            case R.id.open_menu:
+                drawerLayout.openDrawer(GravityCompat.START);
                 break;
         }
+    }
+
+    public static void hideKeyboard(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = activity.getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(activity);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     private void sendNotificationThatWeMetBefore() {
@@ -1034,6 +1155,45 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         sendNotificationThatWeMetBefore();
     }
 
+    private void sendUserAnswer(String ans) {
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+//        String currentDateandTime = sdf.format(new Date());
+        String timeNow = getTimeAfter10minutes();
+        Call<String> putUserAnswer = api.putUserAnswer(
+                pref.getUserId(),
+                currentMission.getmName(),
+                String.valueOf(currentMission.getmLat()),
+                String.valueOf(currentMission.getmLng()),
+                currentMission.getmAns().equals(ans) ? 1 : 0,
+                timeNow,
+                "",
+                currentMission.getmReadyImgUrl());
+
+        putUserAnswer.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                Log.d("putAnswerReponse", response.body());
+                if (currentMission.getmAns().equals(ans)) {
+                    setMissionResultCorrect();
+                    isCurrentMissionCorrect = true;
+                } else {
+                    setMissionResultWrong();
+                    isCurrentMissionCorrect = false;
+                }
+                setMissionResultScreen(true);
+                setMissionPins();
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
+
+        sendNotificationThatWeMetBefore();
+    }
+
+
     private void setMissionResultScreen(boolean on) {
         isMissionResultScreenOn = on;
         if (on) {
@@ -1048,6 +1208,9 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         missionResult2Text.setText("괜찮아요!\n10분 만 기다리면\n다시 시도할 수 있어요^^");
         correctAnswerBg.setVisibility(View.GONE);
         missionResultGetTip.setText("힌트 보러가기");
+        res2.setVisibility(View.VISIBLE);
+        res3.setVisibility(View.VISIBLE);
+        res4.setVisibility(View.VISIBLE);
         switch (userSelected) {
             case 1:
                 res1.setBackground(getResources().getDrawable(R.drawable.wrong_btn_normal));
@@ -1076,12 +1239,40 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         }
     }
 
+    private void setMissionResultWrong() {
+        missionResultText.setText("안타깝게도\n오답이에요!");
+        missionResult2Text.setText("괜찮아요!\n10분만 기다리면\n다시 시도할 수 있어요^^");
+        correctAnswerBg.setVisibility(View.GONE);
+        missionResultGetTip.setText("힌트 보러가기");
+        res1.setText(inputAnswerSubject.getText().toString());
+        res1.setBackground(getResources().getDrawable(R.drawable.wrong_btn_normal));
+        res2.setVisibility(View.GONE);
+        res3.setVisibility(View.GONE);
+        res4.setVisibility(View.GONE);
+    }
+
+    private void setMissionResultCorrect() {
+        missionResultText.setText("정답!\n축하해요");
+        missionResult2Text.setText("여행 꿀팁을 알려줄게요!");
+        correctAnswerBg.setVisibility(View.VISIBLE);
+        correctAnswerBg.setImageResource(R.drawable.petal);
+        missionResultGetTip.setText("여행 꿀팁 보러가기");
+        res1.setText(inputAnswerSubject.getText().toString());
+        res1.setBackground(getResources().getDrawable(R.drawable.correct_btn_normal));
+        res2.setVisibility(View.GONE);
+        res3.setVisibility(View.GONE);
+        res4.setVisibility(View.GONE);
+    }
+
     private void setMissionResultCorrect(int userSelected) {
         missionResultText.setText("정답!\n축하해요");
         missionResult2Text.setText("여행 꿀팁을 알려줄게요!");
         correctAnswerBg.setVisibility(View.VISIBLE);
         correctAnswerBg.setImageResource(R.drawable.petal);
         missionResultGetTip.setText("여행 꿀팁 보러가기");
+        res2.setVisibility(View.VISIBLE);
+        res3.setVisibility(View.VISIBLE);
+        res4.setVisibility(View.VISIBLE);
         switch (userSelected) {
             case 1:
                 res1.setBackground(getResources().getDrawable(R.drawable.correct_btn_normal));
@@ -1417,5 +1608,11 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
 
     @OnClick(R.id.confirm_answer_subject)
     public void onViewClicked() {
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        drawerLayout.closeDrawers();
+        return false;
     }
 }

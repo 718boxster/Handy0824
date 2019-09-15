@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/reward"
+            android:icon="@drawable/menu_favorite"
+            android:title="리워드" />
+
+        <item
+            android:id="@+id/notice"
+            android:icon="@drawable/menu_notice"
+            android:title="알림"/>
+
+        <item
+            android:id="@+id/update"
+            android:icon="@drawable/menu_update"
+            android:title="공지사항"/>
+        <item
+            android:id="@+id/cs"
+            android:icon="@drawable/menu_cs"
+            android:title="고객센터"/>
+        <item
+            android:id="@+id/settings"
+            android:icon="@drawable/menu_settings"
+            android:title="설정"/>
+    </group>
+</menu>

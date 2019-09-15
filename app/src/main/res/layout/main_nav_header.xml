@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="230dp"
+    android:background="@color/mainThemeColor">
+
+    <RelativeLayout
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:src="@drawable/now_counselor_icon"
+            android:layout_width="210px"
+            android:layout_height="210px"
+            android:layout_marginLeft="100px"
+            android:layout_marginTop="200px"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="50px"
+            android:layout_marginLeft="50px"
+            android:textSize="40px"
+            android:text="neverfalling43@gmail.com"/>
+    </RelativeLayout>
+
+    <ImageView
+        android:layout_width="0px"
+        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:scaleType="fitXY"
+        android:src="@drawable/navi_title"/>
+
+
+</LinearLayout>

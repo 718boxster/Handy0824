@@ -57,32 +57,33 @@ public class SplashActivity extends BaseActivity {
                         JsonObject mission = allMissionsArray.get(i).getAsJsonObject();
                         try {
                             MissionData addData = new MissionData();
-                            addData.setmName(mission.get("M_NAME").getAsString());
-                            addData.setmPlace(mission.get("M_PLACE").getAsString());
+                            addData.setmName(mission.get("M_NAME").getAsString().replace("\"", ""));
+                            addData.setmPlace(mission.get("M_PLACE").getAsString().replace("\"", ""));
                             addData.setmLat(mission.get("M_LAT").getAsDouble());
                             addData.setmLng(mission.get("M_LNG").getAsDouble());
                             addData.setmTheme(mission.get("M_THEME").getAsInt());
                             addData.setmRate(mission.get("M_RATE").getAsInt());
-                            addData.setmReadyText(mission.get("M_READY_T").getAsString());
-                            addData.setmReadyImgUrl(staticData.IMG_BASE_URL + mission.get("M_READY_IMG").getAsString());
-                            addData.setmHintText(mission.get("M_HINT_T").getAsString());
-                            addData.setmHintImgUrl(staticData.IMG_BASE_URL + mission.get("M_HINT_IMG").getAsString());
-                            addData.setmTipText(mission.get("M_TIP_T").getAsString());
-                            addData.setmTipImgUrl( staticData.IMG_BASE_URL + mission.get("M_TIP_IMG").getAsString());
-                            addData.setmQuest(mission.get("M_QUEST_T").getAsString());
-                            addData.setmAns(mission.get("ANS").getAsString());
-                            if(TextUtils.isEmpty(mission.get("S_1").getAsString())
-                            || TextUtils.isEmpty(mission.get("S_2").getAsString())
-                            || TextUtils.isEmpty(mission.get("S_3").getAsString())
-                            || TextUtils.isEmpty(mission.get("S_4").getAsString())){
+                            addData.setmReadyText(mission.get("M_READY_T").getAsString().replace("\"", ""));
+                            addData.setmReadyImgUrl(staticData.IMG_BASE_URL + mission.get("M_READY_IMG").getAsString().replace("\"", ""));
+                            addData.setmHintText(mission.get("M_HINT_T").toString().replace("\"", ""));
+                            addData.setmHintImgUrl(staticData.IMG_BASE_URL + mission.get("M_HINT_IMG").getAsString().replace("\"", ""));
+                            addData.setmTipText(mission.get("M_TIP_T").toString().replace("\"", ""));
+                            addData.setmTipImgUrl( staticData.IMG_BASE_URL + mission.get("M_TIP_IMG").getAsString().replace("\"", ""));
+                            addData.setmQuest(mission.get("M_QUEST_T").getAsString().replace("\"", ""));
+                            addData.setmAns(mission.get("ANS").getAsString().replace("\"", ""));
+                            if( (TextUtils.isEmpty(mission.get("S_1").toString()) || "null".equals(mission.get("S_1").toString()) )
+                            || (TextUtils.isEmpty(mission.get("S_2").toString()) || "null".equals(mission.get("S_2").toString()) )
+                            || (TextUtils.isEmpty(mission.get("S_3").toString()) || "null".equals(mission.get("S_3").toString()) )
+                            || (TextUtils.isEmpty(mission.get("S_4").toString()) || "null".equals(mission.get("S_4").toString()) )){
                                 addData.setEssay(true);
                             } else{
-                                addData.setS1(mission.get("S_1").getAsString());
-                                addData.setS2(mission.get("S_2").getAsString());
-                                addData.setS3(mission.get("S_3").getAsString());
-                                addData.setS4(mission.get("S_4").getAsString());
+                                addData.setS1(mission.get("S_1").getAsString().replace("\"", ""));
+                                addData.setS2(mission.get("S_2").getAsString().replace("\"", ""));
+                                addData.setS3(mission.get("S_3").getAsString().replace("\"", ""));
+                                addData.setS4(mission.get("S_4").getAsString().replace("\"", ""));
                                 addData.setEssay(false);
                             }
+                            Log.d("missionName", mission.get("M_NAME").toString());
                             staticData.missionData.add(addData);
                         } catch (Exception e){
                             e.printStackTrace();

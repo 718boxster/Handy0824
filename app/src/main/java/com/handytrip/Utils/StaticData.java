@@ -11,7 +11,7 @@ public class StaticData {
     public static ArrayList<MissionData> doneData;
     public static FilterData filter;
 
-    public static String IMG_BASE_URL = "https://goffhdn8342.cafe24.com/pages/images/";
+    public static String IMG_BASE_URL = "https://goffhdn8342.cafe24.com/pages/uploads/";
 
     public static StaticData getInstance(){
         if(staticData == null){

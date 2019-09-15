@@ -84,6 +84,7 @@ public class LoginActivity extends BaseActivity {
             public void onPermissionGranted() {
                 isAllPermissionGranted = true;
             }
+
             @Override
             public void onPermissionDenied(List<String> deniedPermissions) {
                 isAllPermissionGranted = false;
@@ -102,8 +103,6 @@ public class LoginActivity extends BaseActivity {
     }
 
 
-
-
     @OnClick({R.id.back, R.id.signup, R.id.find_id, R.id.confirm})
     public void onViewClicked(View view) {
         switch (view.getId()) {
@@ -119,7 +118,7 @@ public class LoginActivity extends BaseActivity {
                 startActivity(intent);
                 break;
             case R.id.confirm:
-                if(!isAllPermissionGranted){
+                if (!isAllPermissionGranted) {
                     Toast.makeText(this, "설정->애플리케이션->권한 에서 앱에서 요구하는 권한을 부여해주세요.", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -154,11 +153,15 @@ public class LoginActivity extends BaseActivity {
                 login.enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(Call<String> call, Response<String> response) {
-                        if(response.body().toString().equals("F")){
+                        if (response.body().toString().equals("F")) {
                             Toast.makeText(LoginActivity.this, "통신이 원활하지 않습니다.", Toast.LENGTH_SHORT).show();
-                        } else if(response.body().toString().equals("LOGIN_FAILED")){
+                            if (progressDialog.isShowing())
+                                progressDialog.dismiss();
+                        } else if (response.body().toString().equals("LOGIN_FAILED")) {
                             Toast.makeText(LoginActivity.this, "아이디 또는 비밀번호가 맞지 않습니다.", Toast.LENGTH_SHORT).show();
-                        } else if(response.body().toString().equals("LOGIN_SUCCESS")){
+                            if (progressDialog.isShowing())
+                                progressDialog.dismiss();
+                        } else if (response.body().toString().equals("LOGIN_SUCCESS")) {
                             pref.setUserId(uId);
                             pref.setUserPw(uPw);
                             Call<JsonObject> getUserDoneMissions = api.getUserDoneMissions(pref.getUserId());
@@ -169,7 +172,7 @@ public class LoginActivity extends BaseActivity {
                                     JsonObject obj = response.body();
                                     JsonArray array = obj.getAsJsonArray("result");
                                     staticData.doneData.clear();
-                                    for(int i = 0 ; i < array.size() ; i++){
+                                    for (int i = 0; i < array.size(); i++) {
                                         JsonObject res = array.get(i).getAsJsonObject();
                                         staticData.doneData.add(new MissionData(
                                                 res.get("M_NAME").getAsString(),
@@ -178,11 +181,11 @@ public class LoginActivity extends BaseActivity {
                                         ));
                                     }
 
-                                    for(int i = 0 ; i < staticData.missionData.size() ; i++){
-                                        for(int j = 0 ; j < staticData.doneData.size() ; j++){
-                                            if(staticData.doneData.get(j).getmName().equals(staticData.missionData.get(i).getmName())
-                                            && staticData.doneData.get(j).getmLat() == staticData.missionData.get(i).getmLat()
-                                            && staticData.doneData.get(j).getmLng() == staticData.missionData.get(i).getmLng()){
+                                    for (int i = 0; i < staticData.missionData.size(); i++) {
+                                        for (int j = 0; j < staticData.doneData.size(); j++) {
+                                            if (staticData.doneData.get(j).getmName().equals(staticData.missionData.get(i).getmName())
+                                                    && staticData.doneData.get(j).getmLat() == staticData.missionData.get(i).getmLat()
+                                                    && staticData.doneData.get(j).getmLng() == staticData.missionData.get(i).getmLng()) {
                                                 staticData.missionData.get(i).setDone(true);
                                             }
                                         }
@@ -221,7 +224,7 @@ public class LoginActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case 1:
                     String u_id = data.getStringExtra("u_id");
