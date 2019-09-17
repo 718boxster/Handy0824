@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,10 +20,12 @@ import java.util.ArrayList;
 public class MissionRecordListAdapter extends RecyclerView.Adapter<MissionRecordListAdapter.Holder> {
     ArrayList<MissionRecordItem> datas = new ArrayList<>();
     Context context;
+    View.OnClickListener onClickListener;
 
-    public MissionRecordListAdapter(ArrayList<MissionRecordItem> datas, Context context) {
+    public MissionRecordListAdapter(ArrayList<MissionRecordItem> datas, View.OnClickListener onclickListener, Context context) {
         this.datas = datas;
         this.context = context;
+        this.onClickListener = onclickListener;
     }
 
     @NonNull
@@ -39,6 +42,7 @@ public class MissionRecordListAdapter extends RecyclerView.Adapter<MissionRecord
         Glide.with(context).load(data.getImgUrl()).into(holder.img);
         holder.mName.setText(data.getmName());
         holder.mDate.setText(data.getmDate());
+        holder.recordBody.setOnClickListener(onClickListener);
     }
 
     @Override
@@ -50,11 +54,13 @@ public class MissionRecordListAdapter extends RecyclerView.Adapter<MissionRecord
         ImageView img;
         TextView mName;
         TextView mDate;
+        LinearLayout recordBody;
         public Holder(@NonNull View itemView) {
             super(itemView);
             img = itemView.findViewById(R.id.mission_img);
             mName = itemView.findViewById(R.id.mission_name);
             mDate = itemView.findViewById(R.id.mission_date);
+            recordBody = itemView.findViewById(R.id.record_body);
         }
     }
 }

@@ -11,7 +11,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -19,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -89,6 +89,10 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
     boolean isMissionQuestionScreenOn = false;
     boolean isMissionResultScreenOn = false;
     boolean isMissionTipScreenOn = false;
+    boolean isMyPageScreenOn = false;
+    boolean isMyInfoScreenOn = false;
+    boolean isSettingsScreenOn = false;
+    boolean isMissionRecordScreenOn = false;
 
     boolean isInMap = true;
 
@@ -171,13 +175,45 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
     EditText inputAnswerSubject;
     @BindView(R.id.confirm_answer_subject)
     TextView confirmAnswerSubject;
+    @BindView(R.id.mypage_myinfo)
+    LinearLayout mypageMyinfo;
+    @BindView(R.id.mypage_reward)
+    LinearLayout mypageReward;
+    @BindView(R.id.mypage_mission_history)
+    LinearLayout mypageMissionHistory;
+    @BindView(R.id.mypageScreen)
+    LinearLayout mypageScreen;
+    @BindView(R.id.myinfo_mission_history)
+    LinearLayout myinfoMissionHistory;
+    @BindView(R.id.myinfoScreen)
+    LinearLayout myinfoScreen;
+    @BindView(R.id.myinfo_back)
+    ImageView myinfoBack;
+    @BindView(R.id.settings_back)
+    ImageView settingsBack;
+    @BindView(R.id.settingsScreen)
+    ScrollView settingsScreen;
+
+    NavigationView navigationView;
 
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onBackPressed() {
-        if(drawerLayout.isDrawerOpen(GravityCompat.START)){
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawers();
+        } else if(isMyPageScreenOn){
+            setMyPageScreen(false);
+            setMainScreen(true);
+        } else if(isMyInfoScreenOn){
+            setMyInfoScreen(false);
+            setMainScreen(true);
+        } else if(isMissionRecordScreenOn){
+            setMissionRecordScreen(false);
+            setMainScreen(true);
+        } else if(isSettingsScreenOn){
+            setSettingsScreen(false);
+            setMainScreen(true);
         } else if (isMissionFoundScreenOn) {
             setMissionFoundScreen(false);
             setMainScreen(true);
@@ -197,6 +233,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
             setFilterScreen(false);
             setMainScreen(true);
         } else if (!isInMap) {
+            naviBar.setVisibility(View.VISIBLE);
             menuMap.performClick();
         } else {
             if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
@@ -293,9 +330,13 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //menu click event
-        switch (item.getItemId()) {
 
-        }
+//        switch (item.getItemId()) {
+//            case R.id.settings:
+//                setSettingsScreen(true);
+//                break;
+//        }
+        drawerLayout.closeDrawers();
         return super.onOptionsItemSelected(item);
     }
 
@@ -319,6 +360,9 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOnWithHeading);
         mapView.setCalloutBalloonAdapter(new CustomCalloutBalloonAdapter());
         mapView.setPOIItemEventListener(this);
+
+        navigationView = findViewById(R.id.navigation_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
         setFilterScreen();
 
@@ -815,6 +859,9 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 setMissionResultScreen(false);
                 setMissionFinishScreen(false);
                 setMissionRecordScreen(false);
+                setMyPageScreen(false);
+                setMyInfoScreen(false);
+                setSettingsScreen(false);
                 menuMapText.setTextColor(getResources().getColor(R.color.mainThemeColor));
                 menuMapImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_map_act));
 
@@ -835,6 +882,9 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 setMissionResultScreen(false);
                 setMissionFinishScreen(false);
                 setMissionRecordScreen(true);
+                setMyPageScreen(false);
+                setMyInfoScreen(false);
+                setSettingsScreen(false);
                 naviBar.setVisibility(View.VISIBLE);
                 menuRecordText.setTextColor(getResources().getColor(R.color.mainThemeColor));
                 menuRecordImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_history_act));
@@ -855,6 +905,11 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 setMissionQuestionScreen(false);
                 setMissionResultScreen(false);
                 setMissionFinishScreen(false);
+                setMissionRecordScreen(false);
+                setMyInfoScreen(false);
+                setMyPageScreen(true);
+                setSettingsScreen(false);
+                naviBar.setVisibility(View.VISIBLE);
                 menuMyPageText.setTextColor(getResources().getColor(R.color.mainThemeColor));
                 menuMyPageImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_mypage_act));
 
@@ -866,7 +921,26 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 break;
 
             case R.id.mission_record_back:
-                menuMap.performClick();
+                isInMap = true;
+                isMissionIng = false;
+                setMainScreen(true);
+                setMissionFoundScreen(false);
+                setMissionReadyScreen(false);
+                setMissionQuestionScreen(false);
+                setMissionResultScreen(false);
+                setMissionFinishScreen(false);
+                setMissionRecordScreen(false);
+                setMyPageScreen(false);
+                setMyInfoScreen(false);
+                setSettingsScreen(false);
+                menuMapText.setTextColor(getResources().getColor(R.color.mainThemeColor));
+                menuMapImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_map_act));
+
+                menuRecordText.setTextColor(Color.parseColor("#80000000"));
+                menuRecordImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_history));
+
+                menuMyPageText.setTextColor(Color.parseColor("#80000000"));
+                menuMyPageImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_mypage));
                 break;
 
             case R.id.confirm_answer_subject:
@@ -877,6 +951,15 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
             case R.id.open_menu:
                 drawerLayout.openDrawer(GravityCompat.START);
                 break;
+        }
+    }
+
+    private void setMyPageScreen(boolean on) {
+        isMyPageScreenOn = on;
+        if (on) {
+            mypageScreen.setVisibility(View.VISIBLE);
+        } else {
+            mypageScreen.setVisibility(View.GONE);
         }
     }
 
@@ -901,7 +984,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         sendNotificationThatWeMetBefore.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
-                Log.d("updateFirstMeetCondition", response.body());
+                Log.d("updateFirstMeet", response.body());
             }
 
             @Override
@@ -986,39 +1069,47 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
     }
 
     private void setMissionRecordScreen(boolean on) {
-        ArrayList<MissionRecordItem> datas = new ArrayList<>();
-        Call<JsonObject> getAllUserMissions = api.getAllUserMissions(pref.getUserId());
-        MissionRecordListAdapter adapter = new MissionRecordListAdapter(datas, this);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
-        missionRecordList.setAdapter(adapter);
-        missionRecordList.setLayoutManager(gridLayoutManager);
-        getAllUserMissions.enqueue(new Callback<JsonObject>() {
-            @Override
-            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                JsonObject obj = response.body();
-                JsonArray ary = obj.getAsJsonArray("result");
-                for (int i = 0; i < ary.size(); i++) {
-                    JsonObject resObj = ary.get(i).getAsJsonObject();
-                    datas.add(new MissionRecordItem(
-                            resObj.get("M_IMG").getAsString(),
-                            resObj.get("M_NAME").getAsString(),
-                            TextUtils.isEmpty(resObj.get("M_ANS_TIME").getAsString()) ?
-                                    resObj.get("M_GIVE_UP_TIME").getAsString() :
-                                    resObj.get("M_ANS_TIME").getAsString()
-                    ));
-                }
-                adapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onFailure(Call<JsonObject> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "미션 기록을 불러오는데 문제가 발생했습니다.", Toast.LENGTH_SHORT).show();
-                menuMap.performClick();
-            }
-        });
-
+        isMissionRecordScreenOn = on;
         if (on) {
+            naviBar.setVisibility(View.VISIBLE);
             missionRecordScreen.setVisibility(View.VISIBLE);
+
+            ArrayList<MissionRecordItem> datas = new ArrayList<>();
+            Call<JsonObject> getAllUserMissions = api.getAllUserMissions(pref.getUserId());
+            MissionRecordListAdapter adapter = new MissionRecordListAdapter(datas, new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                }
+            }, this);
+            GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
+            missionRecordList.setAdapter(adapter);
+            missionRecordList.setLayoutManager(gridLayoutManager);
+            getAllUserMissions.enqueue(new Callback<JsonObject>() {
+                @Override
+                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                    JsonObject obj = response.body();
+                    JsonArray ary = obj.getAsJsonArray("result");
+                    for (int i = 0; i < ary.size(); i++) {
+                        JsonObject resObj = ary.get(i).getAsJsonObject();
+                        datas.add(new MissionRecordItem(
+                                resObj.get("M_IMG").getAsString(),
+                                resObj.get("M_NAME").getAsString(),
+                                TextUtils.isEmpty(resObj.get("M_ANS_TIME").getAsString()) ?
+                                        resObj.get("M_GIVE_UP_TIME").getAsString() :
+                                        resObj.get("M_ANS_TIME").getAsString()
+                        ));
+                    }
+                    adapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onFailure(Call<JsonObject> call, Throwable t) {
+                    Toast.makeText(MainActivity.this, "미션 기록을 불러오는데 문제가 발생했습니다.", Toast.LENGTH_SHORT).show();
+                    menuMap.performClick();
+                }
+            });
+
         } else {
             missionRecordScreen.setVisibility(View.GONE);
         }
@@ -1572,6 +1663,15 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         }
     }
 
+    private void setMyInfoScreen(boolean on) {
+        isMyInfoScreenOn = on;
+        if (on) {
+            myinfoScreen.setVisibility(View.VISIBLE);
+        } else {
+            myinfoScreen.setVisibility(View.GONE);
+        }
+    }
+
     @Override
     public void onPOIItemSelected(MapView mapView, MapPOIItem mapPOIItem) {
 
@@ -1606,13 +1706,139 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         GlobalBus.getBus().unregister(this);
     }
 
-    @OnClick(R.id.confirm_answer_subject)
-    public void onViewClicked() {
-    }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        drawerLayout.closeDrawers();
-        return false;
+        if(menuItem.getItemId() == R.id.settings){
+            setSettingsScreen(true);
+            setMainScreen(false);
+            setMissionFoundScreen(false);
+            setMissionReadyScreen(false);
+            setMissionQuestionScreen(false);
+            setMissionResultScreen(false);
+            setMissionFinishScreen(false);
+            setMyPageScreen(false);
+            setMyInfoScreen(false);
+            isInMap = false;
+            isMissionIng = true;
+        }
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    @OnClick(R.id.mypage_myinfo)
+    public void onMypageMyinfoClicked() {
+        setMainScreen(false);
+        setMissionFoundScreen(false);
+        setMissionReadyScreen(false);
+        setMissionQuestionScreen(false);
+        setMissionResultScreen(false);
+        setMissionFinishScreen(false);
+        setMyPageScreen(false);
+        setMyInfoScreen(true);
+        setSettingsScreen(false);
+    }
+
+    @OnClick(R.id.mypage_reward)
+    public void onMypageRewardClicked() {
+    }
+
+    @OnClick(R.id.mypage_mission_history)
+    public void onMypageMissionHistoryClicked() {
+        isInMap = false;
+        isMissionIng = true;
+        setMainScreen(false);
+        setMissionFoundScreen(false);
+        setMissionReadyScreen(false);
+        setMissionQuestionScreen(false);
+        setMissionResultScreen(false);
+        setMissionFinishScreen(false);
+        setMissionRecordScreen(true);
+        setMyPageScreen(false);
+        setMyInfoScreen(false);
+        setSettingsScreen(false);
+        naviBar.setVisibility(View.VISIBLE);
+        menuRecordText.setTextColor(getResources().getColor(R.color.mainThemeColor));
+        menuRecordImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_history_act));
+
+        menuMapText.setTextColor(Color.parseColor("#80000000"));
+        menuMapImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_map));
+
+        menuMyPageText.setTextColor(Color.parseColor("#80000000"));
+        menuMyPageImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_mypage));
+    }
+
+    @OnClick(R.id.myinfo_mission_history)
+    public void onViewClicked() {
+        isInMap = false;
+        isMissionIng = true;
+        setMainScreen(false);
+        setMissionFoundScreen(false);
+        setMissionReadyScreen(false);
+        setMissionQuestionScreen(false);
+        setMissionResultScreen(false);
+        setMissionFinishScreen(false);
+        setMissionRecordScreen(true);
+        setMyPageScreen(false);
+        setMyInfoScreen(false);
+        setSettingsScreen(false);
+        naviBar.setVisibility(View.VISIBLE);
+        menuRecordText.setTextColor(getResources().getColor(R.color.mainThemeColor));
+        menuRecordImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_history_act));
+
+        menuMapText.setTextColor(Color.parseColor("#80000000"));
+        menuMapImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_map));
+
+        menuMyPageText.setTextColor(Color.parseColor("#80000000"));
+        menuMyPageImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_mypage));
+    }
+
+    @OnClick(R.id.myinfo_back)
+    public void onMyinfoBackClicked() {
+        isInMap = true;
+        isMissionIng = false;
+        setMainScreen(true);
+        setMissionFoundScreen(false);
+        setMissionReadyScreen(false);
+        setMissionQuestionScreen(false);
+        setMissionResultScreen(false);
+        setMissionFinishScreen(false);
+        setMissionRecordScreen(false);
+        setMyPageScreen(false);
+        setMyInfoScreen(false);
+        setSettingsScreen(false);
+        menuMapText.setTextColor(getResources().getColor(R.color.mainThemeColor));
+        menuMapImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_map_act));
+
+        menuRecordText.setTextColor(Color.parseColor("#80000000"));
+        menuRecordImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_history));
+
+        menuMyPageText.setTextColor(Color.parseColor("#80000000"));
+        menuMyPageImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_mypage));
+    }
+
+    @OnClick(R.id.settings_back)
+    public void onSettingsBackClicked() {
+        isInMap = true;
+        isMissionIng = false;
+        setMainScreen(true);
+        setMissionFoundScreen(false);
+        setMissionReadyScreen(false);
+        setMissionQuestionScreen(false);
+        setMissionResultScreen(false);
+        setMissionFinishScreen(false);
+        setMissionRecordScreen(false);
+        setMyPageScreen(false);
+        setMyInfoScreen(false);
+        setSettingsScreen(false);
+    }
+
+    private void setSettingsScreen(boolean on){
+        isSettingsScreenOn = on;
+        if(on){
+            settingsScreen.setVisibility(View.VISIBLE);
+        } else {
+            settingsScreen.setVisibility(View.GONE);
+        }
     }
 }

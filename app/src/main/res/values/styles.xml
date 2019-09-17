@@ -62,6 +62,22 @@
         <item name="android:visibility">gone</item>
     </style>
 
+    <style name="setMyPageVisibility" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="setMyInfoVisibility" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="setHistoryTipVisibility" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="setSettingsVisibility" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:visibility">gone</item>
+    </style>
+
     <style name="MyRatingBar" parent="Base.Widget.AppCompat.RatingBar">
         <item name="android:colorControlNormal">#FFFFFF</item>
         <item name="android:colorControlActivated">#FFFFFF</item>
