@@ -18,8 +18,11 @@ public interface RetrofitAPI {
     @GET("get_all_missions.php")
     Call<JsonObject> getAllMissions();
 
+    @GET("get_specific_mission.php")
+    Call<JsonObject> getSpecificMission(@Query("m_name") String m_name, @Query("m_place") String m_place, @Query("m_lat") String m_lat, @Query("m_lng") String m_lng);
+
     @GET("put_user_answer.php")
-    Call<String> putUserAnswer(@Query("u_id") String _id, @Query("m_name") String m_name, @Query("m_lat") String m_lat, @Query("m_lng") String m_lng, @Query("m_is_correct") int isCorrect, @Query("m_ans_time") String m_ans_time, @Query("m_give_up_time") String m_give_up_time, @Query("m_img") String m_img);
+    Call<String> putUserAnswer(@Query("u_id") String _id, @Query("m_name") String m_name, @Query("m_lat") String m_lat, @Query("m_lng") String m_lng, @Query("m_is_correct") int isCorrect, @Query("m_ans_time") String m_ans_time, @Query("m_give_up_time") String m_give_up_time, @Query("m_img") String m_img, @Query("m_is_first") int m_is_first);
 
     @GET("get_user_missions.php")
     Call<JsonObject> getUserMissions(@Query("u_id") String _id, @Query("m_name") String m_name, @Query("m_lat") String m_lat, @Query("m_lng") String m_lng);

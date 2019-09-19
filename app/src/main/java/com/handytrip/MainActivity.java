@@ -99,7 +99,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
 
     boolean isMapHeading = true;
 
-    private static final int MISSION_DISTANCE = 1000000;
+    private static final int MISSION_DISTANCE = 100;
 
     DrawerLayout drawerLayout;
 
@@ -448,8 +448,6 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                                 } else {
                                     isFirstTime = false;
                                 }
-
-
                                 try {
                                     date = dateFormat.parse(dateFormat.format(new Date()));
                                 } catch (Exception e) {
@@ -470,6 +468,9 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
+                                isMissionIng = true;
+                                setMainScreen(false);
+                                setMissionReadyScreen(true);
                             }
 
                         }
@@ -542,14 +543,10 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                                 }
                                 if (uMission.get("M_IS_CORRECT").getAsInt() == 1) {
                                     isCorrectBefore = true;
-                                } else {
-                                    isCorrectBefore = false;
                                 }
 
                                 if (uMission.get("IS_FIRST_TIME").getAsInt() == 1) {
                                     isFirstTime = true;
-                                } else {
-                                    isFirstTime = false;
                                 }
 
 
@@ -559,17 +556,18 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                                     e.printStackTrace();
                                 }
 
-                                if (!isCorrectBefore || isGiveUp) {
+                                if (isGiveUp || !isCorrectBefore) {
                                     if (date.after(missionDate)) {
-                                        if (isFirstTime) {
+//                                        if (isFirstTime) {
                                             popMissionFound(currentMission.getmTheme(), currentMission.getmRate());
-                                        }
+//                                        }
                                     } else {
                                         isMissionIng = false;
                                     }
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
+                                popMissionFound(currentMission.getmTheme(), currentMission.getmRate());
                             }
 
                         }
@@ -1182,7 +1180,8 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 0,
                 "",
                 timeNow,
-                currentMission.getmReadyImgUrl()
+                currentMission.getmReadyImgUrl(),
+                0
         );
         putUserGiveUp.enqueue(new Callback<String>() {
             @Override
@@ -1221,7 +1220,8 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 currentMission.getmAns().equals(ans) ? 1 : 0,
                 timeNow,
                 "",
-                currentMission.getmReadyImgUrl());
+                currentMission.getmReadyImgUrl(),
+                0);
 
         putUserAnswer.enqueue(new Callback<String>() {
             @Override
@@ -1258,7 +1258,8 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 currentMission.getmAns().equals(ans) ? 1 : 0,
                 timeNow,
                 "",
-                currentMission.getmReadyImgUrl());
+                currentMission.getmReadyImgUrl(),
+                0);
 
         putUserAnswer.enqueue(new Callback<String>() {
             @Override
