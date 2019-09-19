@@ -10,10 +10,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class BaseActivity extends AppCompatActivity {
     public StaticData staticData;
     public RetrofitAPI api;
     public Preferences pref;
+    public boolean isSuccess = false;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,5 +55,22 @@ public class BaseActivity extends AppCompatActivity {
         Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();
+    }
+
+
+    public boolean sendFcmToken(String token){
+        Call<String> sendFcmToken = api.sendFcmToken(token);
+        sendFcmToken.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                isSuccess = true;
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+
+            }
+        });
+        return isSuccess;
     }
 }

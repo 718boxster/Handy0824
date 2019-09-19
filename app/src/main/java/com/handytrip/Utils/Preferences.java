@@ -11,10 +11,20 @@ public class Preferences {
     private static String USER_ID = "USER_ID";
     private static String USER_PW = "USER_PW";
 
+    private static String FCM_TOKEN = "FCM_TOKEN";
+
     public Preferences(Context context) {
         this.context = context;
         pref = context.getSharedPreferences("HANDY.pref", Context.MODE_PRIVATE);
         editor = pref.edit();
+    }
+
+    public void setFcmToken(String fcmToken){
+        editor.putString(FCM_TOKEN, fcmToken);
+        editor.commit();
+    }
+    public String getFcmToken(){
+        return pref.getString(FCM_TOKEN, null);
     }
 
     public void setUserId(String id){

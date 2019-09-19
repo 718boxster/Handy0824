@@ -1,6 +1,7 @@
 package com.handytrip;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -37,6 +38,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.handytrip.Structures.MissionData;
@@ -205,15 +207,19 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         } else if(isMyPageScreenOn){
             setMyPageScreen(false);
             setMainScreen(true);
+            setMenuMap();
         } else if(isMyInfoScreenOn){
             setMyInfoScreen(false);
             setMainScreen(true);
+            setMenuMap();
         } else if(isMissionRecordScreenOn){
             setMissionRecordScreen(false);
             setMainScreen(true);
+            setMenuMap();
         } else if(isSettingsScreenOn){
             setSettingsScreen(false);
             setMainScreen(true);
+            setMenuMap();
         } else if (isMissionFoundScreenOn) {
             setMissionFoundScreen(false);
             setMainScreen(true);
@@ -245,6 +251,17 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 finish();
             }
         }
+    }
+
+    private void setMenuMap(){
+        menuMapText.setTextColor(getResources().getColor(R.color.mainThemeColor));
+        menuMapImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_map_act));
+
+        menuRecordText.setTextColor(Color.parseColor("#80000000"));
+        menuRecordImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_history));
+
+        menuMyPageText.setTextColor(Color.parseColor("#80000000"));
+        menuMyPageImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_mypage));
     }
 
     StaticData staticData = StaticData.getInstance();
@@ -363,6 +380,18 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
 
         navigationView = findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+
+        if(TextUtils.isEmpty(pref.getFcmToken())){
+            pref.setFcmToken(FirebaseInstanceId.getInstance().getToken());
+            if(! sendFcmToken(pref.getFcmToken())){
+                Toast.makeText(MainActivity.this, "푸시 메세지 서버와의 통신이 불안정합니다.\n알림을 받지 못할 수 있습니다.", Toast.LENGTH_SHORT).show();
+            }
+        } else if(! pref.getFcmToken().equals(FirebaseInstanceId.getInstance().getToken())){
+            if(! sendFcmToken(pref.getFcmToken())){
+                Toast.makeText(MainActivity.this, "푸시 메세지 서버와의 통신이 불안정합니다.\n알림을 받지 못할 수 있습니다.", Toast.LENGTH_SHORT).show();
+            }
+        }
 
         setFilterScreen();
 
@@ -860,14 +889,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 setMyPageScreen(false);
                 setMyInfoScreen(false);
                 setSettingsScreen(false);
-                menuMapText.setTextColor(getResources().getColor(R.color.mainThemeColor));
-                menuMapImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_map_act));
-
-                menuRecordText.setTextColor(Color.parseColor("#80000000"));
-                menuRecordImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_history));
-
-                menuMyPageText.setTextColor(Color.parseColor("#80000000"));
-                menuMyPageImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_mypage));
+                setMenuMap();
                 break;
 
             case R.id.menu_record:
@@ -1077,7 +1099,13 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
             MissionRecordListAdapter adapter = new MissionRecordListAdapter(datas, new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    MissionRecordItem posData = ((MissionRecordItem) view.getTag());
 
+
+
+                    Intent intent = new Intent(MainActivity.this, MissionTip.class);
+                    intent.putExtra("data", posData);
+                    startActivity(intent);
                 }
             }, this);
             GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
@@ -1095,7 +1123,10 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                                 resObj.get("M_NAME").getAsString(),
                                 TextUtils.isEmpty(resObj.get("M_ANS_TIME").getAsString()) ?
                                         resObj.get("M_GIVE_UP_TIME").getAsString() :
-                                        resObj.get("M_ANS_TIME").getAsString()
+                                        resObj.get("M_ANS_TIME").getAsString(),
+                                resObj.get("M_PLACE").getAsString(),
+                                resObj.get("M_LAT").getAsString(),
+                                resObj.get("M_LNG").getAsString()
                         ));
                     }
                     adapter.notifyDataSetChanged();
@@ -1181,7 +1212,8 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 "",
                 timeNow,
                 currentMission.getmReadyImgUrl(),
-                0
+                0,
+                currentMission.getmPlace()
         );
         putUserGiveUp.enqueue(new Callback<String>() {
             @Override
@@ -1221,7 +1253,8 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 timeNow,
                 "",
                 currentMission.getmReadyImgUrl(),
-                0);
+                0,
+                currentMission.getmPlace());
 
         putUserAnswer.enqueue(new Callback<String>() {
             @Override
@@ -1261,7 +1294,8 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 timeNow,
                 "",
                 currentMission.getmReadyImgUrl(),
-                0);
+                0,
+                currentMission.getmPlace());
 
         putUserAnswer.enqueue(new Callback<String>() {
             @Override

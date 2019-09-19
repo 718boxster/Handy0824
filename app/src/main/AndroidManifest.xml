@@ -18,8 +18,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".SignUpActivity"
-            android:windowSoftInputMode="adjustResize"></activity>
+        <activity android:name=".MissionTip"></activity>
+        <activity
+            android:name=".SignUpActivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity android:name=".SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,6 +32,7 @@
         <activity android:name=".LoginActivity" />
         <activity android:name=".FindAccountActivity" />
         <activity android:name=".MainActivity" />
+
         <service
             android:name=".Utils.MyFirebaseMessagingService"
             android:exported="false">
@@ -37,6 +40,7 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/navi_title" />
