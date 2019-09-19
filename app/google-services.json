@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "441679958487",
+    "firebase_url": "https://handytrip-8e26c.firebaseio.com",
+    "project_id": "handytrip-8e26c",
+    "storage_bucket": "handytrip-8e26c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:441679958487:android:877627f3de0ebf0f123b92",
+        "android_client_info": {
+          "package_name": "com.handytrip"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "441679958487-nes00piom9hejp0f0dfomq4lfoih012k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.handytrip",
+            "certificate_hash": "0b48b77af819f8e968fc8abd35651c5766cf92aa"
+          }
+        },
+        {
+          "client_id": "441679958487-p1pqfdos8k4kl17sgvddg5btcehoggqv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBK733CZn8QtsWF5TAaXZWyVHIJjs-OHEE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "441679958487-p1pqfdos8k4kl17sgvddg5btcehoggqv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

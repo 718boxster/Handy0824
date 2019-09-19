@@ -187,6 +187,7 @@ public class LoginActivity extends BaseActivity {
                                                     && staticData.doneData.get(j).getmLat() == staticData.missionData.get(i).getmLat()
                                                     && staticData.doneData.get(j).getmLng() == staticData.missionData.get(i).getmLng()) {
                                                 staticData.missionData.get(i).setDone(true);
+                                                staticData.missionData.get(i).setmTheme(4);
                                             }
                                         }
                                     }

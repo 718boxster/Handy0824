@@ -99,7 +99,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
 
     boolean isMapHeading = true;
 
-    private static final int MISSION_DISTANCE = 100;
+    private static final int MISSION_DISTANCE = 1000;
 
     DrawerLayout drawerLayout;
 
@@ -1230,11 +1230,13 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 if (currentMission.getmAns().equals(ans)) {
                     setMissionResultCorrect(selection);
                     isCurrentMissionCorrect = true;
+                    currentMission.setmTheme(4);
                 } else {
                     setMissionResultWrong(selection);
                     isCurrentMissionCorrect = false;
                 }
                 setMissionResultScreen(true);
+                setMissionPins();
             }
 
             @Override
@@ -1268,6 +1270,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 if (currentMission.getmAns().equals(ans)) {
                     setMissionResultCorrect();
                     isCurrentMissionCorrect = true;
+                    currentMission.setmTheme(4);
                 } else {
                     setMissionResultWrong();
                     isCurrentMissionCorrect = false;
