@@ -42,7 +42,7 @@ public class MissionRecordListAdapter extends RecyclerView.Adapter<MissionRecord
         Glide.with(context).load(data.getImgUrl()).into(holder.img);
         holder.mName.setText(data.getmName());
         holder.mDate.setText(data.getmDate());
-        holder.recordBody.setTag(data.getImgUrl());
+        holder.recordBody.setTag(data);
         holder.recordBody.setOnClickListener(onClickListener);
     }
 

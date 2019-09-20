@@ -71,10 +71,10 @@ public class SplashActivity extends BaseActivity {
                             addData.setmTipImgUrl( staticData.IMG_BASE_URL + mission.get("M_TIP_IMG").getAsString().replace("\"", ""));
                             addData.setmQuest(mission.get("M_QUEST_T").getAsString().replace("\"", ""));
                             addData.setmAns(mission.get("ANS").getAsString().replace("\"", ""));
-                            if( (TextUtils.isEmpty(mission.get("S_1").toString()) || "null".equals(mission.get("S_1").toString()) )
-                            || (TextUtils.isEmpty(mission.get("S_2").toString()) || "null".equals(mission.get("S_2").toString()) )
-                            || (TextUtils.isEmpty(mission.get("S_3").toString()) || "null".equals(mission.get("S_3").toString()) )
-                            || (TextUtils.isEmpty(mission.get("S_4").toString()) || "null".equals(mission.get("S_4").toString()) )){
+                            if( (TextUtils.isEmpty(mission.get("S_1").toString()) || "null".equals(mission.get("S_1").toString()) || "".equals(mission.get("S_1").toString() ))
+                            || (TextUtils.isEmpty(mission.get("S_2").toString()) || "null".equals(mission.get("S_2").toString()) || "".equals(mission.get("S_1").toString() ))
+                            || (TextUtils.isEmpty(mission.get("S_3").toString()) || "null".equals(mission.get("S_3").toString()) || "".equals(mission.get("S_1").toString() ))
+                            || (TextUtils.isEmpty(mission.get("S_4").toString()) || "null".equals(mission.get("S_4").toString()) || "".equals(mission.get("S_1").toString() )) ){
                                 addData.setEssay(true);
                             } else{
                                 addData.setS1(mission.get("S_1").getAsString().replace("\"", ""));
@@ -83,7 +83,7 @@ public class SplashActivity extends BaseActivity {
                                 addData.setS4(mission.get("S_4").getAsString().replace("\"", ""));
                                 addData.setEssay(false);
                             }
-                            Log.d("missionName", mission.get("M_NAME").toString());
+//                            Log.d("missionName", mission.get("M_NAME").toString() + " / " + mission.get("S_1").getAsString() + " / " + mission.get("S_2").getAsString());
                             staticData.missionData.add(addData);
                         } catch (Exception e){
                             e.printStackTrace();

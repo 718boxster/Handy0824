@@ -19,7 +19,7 @@
     </style>
 
     <style name="setMainScreenVisibility" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:visibility">gone</item>
+        <item name="android:visibility">visible</item>
     </style>
 
     <style name="setFilterScreenVisibility" parent="Theme.AppCompat.Light.NoActionBar">
@@ -71,7 +71,7 @@
     </style>
 
     <style name="setHistoryTipVisibility" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:visibility">visible</item>
+        <item name="android:visibility">gone</item>
     </style>
 
     <style name="setSettingsVisibility" parent="Theme.AppCompat.Light.NoActionBar">

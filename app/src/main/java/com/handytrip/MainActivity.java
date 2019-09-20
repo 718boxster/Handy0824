@@ -2,8 +2,10 @@ package com.handytrip;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Build;
@@ -35,7 +37,11 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -57,6 +63,7 @@ import net.daum.mf.map.api.MapPOIItem;
 import net.daum.mf.map.api.MapPoint;
 import net.daum.mf.map.api.MapView;
 
+import java.io.ByteArrayOutputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -365,10 +372,6 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         ButterKnife.bind(this);
         drawerLayout = findViewById(R.id.drawerLayout);
         mission_ready_img = findViewById(R.id.mission_ready_img);
-        RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), BitmapFactory.decodeResource(getResources(), R.drawable.the_o_twin_three));
-        roundedBitmapDrawable.setCornerRadius(5);
-        roundedBitmapDrawable.setAntiAlias(true);
-        mission_ready_img.setImageDrawable(roundedBitmapDrawable);
         mapView = new MapView(this);
         mapViewContainer = findViewById(R.id.mapView);
         mapViewContainer.addView(mapView);
@@ -486,6 +489,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                                 if (!isCorrectBefore || isGiveUp) {
                                     if (date.after(missionDate)) {
                                         setMainScreen(false);
+                                        setMissionFoundScreen(false);
                                         setMissionReadyScreen(true);
                                     } else {
                                         Toast.makeText(MainActivity.this, "아직 10분이 지나지 않았어요!", Toast.LENGTH_SHORT).show();
@@ -499,6 +503,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                                 e.printStackTrace();
                                 isMissionIng = true;
                                 setMainScreen(false);
+                                setMissionFoundScreen(false);
                                 setMissionReadyScreen(true);
                             }
 
@@ -585,7 +590,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                                     e.printStackTrace();
                                 }
 
-                                if (isGiveUp || !isCorrectBefore) {
+                                if (isGiveUp) {
                                     if (date.after(missionDate)) {
 //                                        if (isFirstTime) {
                                             popMissionFound(currentMission.getmTheme(), currentMission.getmRate());
@@ -1101,8 +1106,6 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 public void onClick(View view) {
                     MissionRecordItem posData = ((MissionRecordItem) view.getTag());
 
-
-
                     Intent intent = new Intent(MainActivity.this, MissionTip.class);
                     intent.putExtra("data", posData);
                     startActivity(intent);
@@ -1159,6 +1162,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
             missionFinishHintTitle.setText("여행 꿀Tip");
             Glide.with(MainActivity.this)
                     .load(currentMission.getmTipImgUrl())
+                    .override(500, 200)
                     .into(missionFinishHintImg);
             missionFinishHint.setText(currentMission.getmTipText());
             missionFinishConfirm.setText("미션 완료");
@@ -1166,6 +1170,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
             missionFinishHintTitle.setText("힌트를 보고\n재시도 해보세요!");
             Glide.with(MainActivity.this)
                     .load(currentMission.getmHintImgUrl())
+                    .override(500, 200)
                     .into(missionFinishHintImg);
             missionFinishHint.setText(currentMission.getmHintText());
             missionFinishConfirm.setText("10분 후에 재시도");
@@ -1285,6 +1290,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
 //        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
 //        String currentDateandTime = sdf.format(new Date());
         String timeNow = getTimeAfter10minutes();
+        Log.d("isCorrect??", ans.equals(currentMission.getmAns()) + "");
         Call<String> putUserAnswer = api.putUserAnswer(
                 pref.getUserId(),
                 currentMission.getmName(),
@@ -1459,7 +1465,9 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                     .into(new CustomTarget<Drawable>() {
                         @Override
                         public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                            missionQuestionImage.setBackground(resource);
+                            Bitmap bitmap = ((BitmapDrawable)resource).getBitmap();
+                            bitmap = Bitmap.createScaledBitmap(bitmap, 1080, 1440, false);
+                            missionQuestionImage.setBackground(new BitmapDrawable(bitmap));
                         }
 
                         @Override
@@ -1521,9 +1529,11 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         isMissionReadyScreenOn = on;
         if (on) {
             missionReadyScreen.setVisibility(View.VISIBLE);
-            Glide.with(this)
+            Log.d("missionReadyImgUrl", currentMission.getmReadyImgUrl());
+            Glide.with(MainActivity.this)
                     .load(currentMission.getmReadyImgUrl())
                     .into(missionReadyImg);
+
             missionReadyTitle.setText(currentMission.getmName());
             switch (currentMission.getmTheme()) {
                 case 1:
