@@ -391,17 +391,20 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         navigationView = findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        sendFcmToken(FirebaseInstanceId.getInstance().getToken());
 
         if (TextUtils.isEmpty(pref.getFcmToken())) {
             pref.setFcmToken(FirebaseInstanceId.getInstance().getToken());
             if (!sendFcmToken(pref.getFcmToken())) {
-                Toast.makeText(MainActivity.this, "푸시 메세지 서버와의 통신이 불안정합니다.\n알림을 받지 못할 수 있습니다.", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(MainActivity.this, "푸시 메세지 서버와의 통신이 불안정합니다.\n알림을 받지 못할 수 있습니다.", Toast.LENGTH_SHORT).show();
             }
         } else if (!pref.getFcmToken().equals(FirebaseInstanceId.getInstance().getToken())) {
             if (!sendFcmToken(pref.getFcmToken())) {
-                Toast.makeText(MainActivity.this, "푸시 메세지 서버와의 통신이 불안정합니다.\n알림을 받지 못할 수 있습니다.", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(MainActivity.this, "푸시 메세지 서버와의 통신이 불안정합니다.\n알림을 받지 못할 수 있습니다.", Toast.LENGTH_SHORT).show();
             }
         }
+
+//        Log.d("FCMFCMFCM", pref.getFcmToken());
 
         checkboxAll.setOnCheckedChangeListener((compoundButton, b) -> staticData.filter.setAll(b));
         checkboxDone.setOnCheckedChangeListener((compoundButton, b) -> staticData.filter.setDone(b));
@@ -432,6 +435,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 pref.setGetNotification(false);
             }
         });
+        setAlarm.setChecked(false);
 
         setLocation.setOnCheckedChangeListener((compoundButton, b) -> {
         });

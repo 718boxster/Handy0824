@@ -4,6 +4,9 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -59,16 +62,18 @@ public class BaseActivity extends AppCompatActivity {
 
 
     public boolean sendFcmToken(String token){
-        Call<String> sendFcmToken = api.sendFcmToken(token);
+//        Log.d("sendedToken-Base", token);
+        Call<String> sendFcmToken = api.sendFcmToken(pref.getUserId(), token);
         sendFcmToken.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 isSuccess = true;
+                Toast.makeText(BaseActivity.this, "푸시 서버에 등록되었습니다.", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailure(Call<String> call, Throwable t) {
-
+                isSuccess = false;
             }
         });
         return isSuccess;

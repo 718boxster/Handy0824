@@ -39,6 +39,6 @@ public interface RetrofitAPI {
     @GET("get_user_done_missions.php")
     Call<JsonObject> getUserDoneMissions(@Query("u_id") String u_id);
 
-    @GET("send_fcm_token.php")
-    Call<String> sendFcmToken(@Query("fcmToken") String token);
+    @GET("save_token.php")
+    Call<String> sendFcmToken(@Query("_id") String _id, @Query("token") String token);
 }

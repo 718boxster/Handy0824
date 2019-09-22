@@ -1,5 +1,6 @@
 package com.handytrip.Utils;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -8,6 +9,9 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.renderscript.RenderScript;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 
@@ -24,6 +28,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public RetrofitAPI api;
     public boolean isSuccess = false;
     public Preferences pref;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -41,11 +46,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-        sendNotification(remoteMessage.getNotification().getBody());
+        Log.d("remoteMessage", remoteMessage.getData().get("message"));
+//        Toast.makeText(this, remoteMessage.getNotification().getBody(), Toast.LENGTH_SHORT).show();
+        if (pref.isGetNotification()) {
+            sendNotification(remoteMessage.getData().get("message"));
+        }
     }
 
-    public boolean sendFcmToken(String token){
-        Call<String> sendFcmToken = api.sendFcmToken(token);
+    public boolean sendFcmToken(String token) {
+        Log.d("sendedToken-Fire", token);
+        Call<String> sendFcmToken = api.sendFcmToken(pref.getUserId(), token);
         sendFcmToken.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
@@ -72,10 +82,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, channelId)
                         .setSmallIcon(R.drawable.navi_title)
-                        .setContentTitle("새 알림")
                         .setContentText(messageBody)
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri)
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setContentIntent(pendingIntent);
 
         NotificationManager notificationManager =
@@ -84,12 +94,22 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // Since android Oreo notification channel is needed.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(channelId,
-                    "Channel human readable title",
-                    NotificationManager.IMPORTANCE_DEFAULT);
+                    "1",
+                    NotificationManager.IMPORTANCE_HIGH);
+            channel.setDescription("HandyTrip");
+            channel.setShowBadge(true);
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+
+            Notification notification = new Notification.Builder(this)
+                    .setContentText(messageBody)
+                    .setSmallIcon(R.drawable.navi_title)
+                    .setChannelId(channelId)
+                    .build();
             notificationManager.createNotificationChannel(channel);
+            notificationManager.notify(0, notification);
         }
-        if(pref.isGetNotification()) {
-            notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
-        }
+
+        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+
     }
 }
