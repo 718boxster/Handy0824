@@ -371,6 +371,13 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         return super.onOptionsItemSelected(item);
     }
 
+    public static MainActivity mainActivity;
+    public static MainActivity getInstance(){
+        if(mainActivity == null){
+            mainActivity = new MainActivity();
+        } return mainActivity;
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

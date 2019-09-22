@@ -29,7 +29,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public RetrofitAPI api;
     public boolean isSuccess = false;
     public Preferences pref;
-
+    public MainActivity mainActivity = MainActivity.getInstance();
     @Override
     public void onCreate() {
         super.onCreate();
@@ -90,7 +90,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setSmallIcon(R.mipmap.app_icon_round)
                 .setContentTitle("새 알림")
                 .setContentText(messageBody);
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent();
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addNextIntent(intent);
