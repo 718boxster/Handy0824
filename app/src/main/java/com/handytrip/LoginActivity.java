@@ -177,15 +177,16 @@ public class LoginActivity extends BaseActivity {
                                         staticData.doneData.add(new MissionData(
                                                 res.get("M_NAME").getAsString(),
                                                 res.get("M_LAT").getAsDouble(),
-                                                res.get("M_LNG").getAsDouble()
+                                                res.get("M_LNG").getAsDouble(),
+                                                res.get("M_PLACE").getAsString()
                                         ));
                                     }
-
                                     for (int i = 0; i < staticData.missionData.size(); i++) {
                                         for (int j = 0; j < staticData.doneData.size(); j++) {
                                             if (staticData.doneData.get(j).getmName().equals(staticData.missionData.get(i).getmName())
                                                     && staticData.doneData.get(j).getmLat() == staticData.missionData.get(i).getmLat()
-                                                    && staticData.doneData.get(j).getmLng() == staticData.missionData.get(i).getmLng()) {
+                                                    && staticData.doneData.get(j).getmLng() == staticData.missionData.get(i).getmLng()
+                                                    && staticData.doneData.get(j).getmPlace().equals(staticData.missionData.get(i).getmPlace())) {
                                                 staticData.missionData.get(i).setDone(true);
                                                 staticData.missionData.get(i).setmTheme(4);
                                             }

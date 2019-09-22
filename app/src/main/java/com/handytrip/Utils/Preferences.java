@@ -13,6 +13,8 @@ public class Preferences {
 
     private static String FCM_TOKEN = "FCM_TOKEN";
 
+    private static String GET_NOTIFICATION = "GET_NOTIFICATION";
+
     public Preferences(Context context) {
         this.context = context;
         pref = context.getSharedPreferences("HANDY.pref", Context.MODE_PRIVATE);
@@ -41,5 +43,13 @@ public class Preferences {
     }
     public String getUserPw(){
         return pref.getString(USER_PW, "");
+    }
+
+    public void setGetNotification(boolean getNotification){
+        editor.putBoolean(GET_NOTIFICATION, getNotification);
+        editor.commit();
+    }
+    public boolean isGetNotification(){
+        return pref.getBoolean(GET_NOTIFICATION, true);
     }
 }

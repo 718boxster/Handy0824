@@ -15,7 +15,10 @@ import com.bumptech.glide.Glide;
 import com.handytrip.R;
 import com.handytrip.Structures.MissionRecordItem;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class MissionRecordListAdapter extends RecyclerView.Adapter<MissionRecordListAdapter.Holder> {
     ArrayList<MissionRecordItem> datas = new ArrayList<>();
@@ -41,7 +44,21 @@ public class MissionRecordListAdapter extends RecyclerView.Adapter<MissionRecord
         MissionRecordItem data = datas.get(position);
         Glide.with(context).load(data.getImgUrl()).into(holder.img);
         holder.mName.setText(data.getmName());
-        holder.mDate.setText(data.getmDate());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        try {
+            Date date = sdf.parse(data.getmDate());
+            SimpleDateFormat parseDate = new SimpleDateFormat("yyyy. MM. dd a HH:mm", Locale.US);
+            String resDate = parseDate.format(date);
+//            if(resDate.contains("오후")){
+//                resDate.replace("오후", "PM");
+//            } else if(resDate.contains("오전")){
+//                resDate.replace("오전", "AM");
+//            }
+            holder.mDate.setText(resDate);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+//        holder.mDate.setText(data.getmDate());
         holder.recordBody.setTag(data);
         holder.recordBody.setOnClickListener(onClickListener);
     }

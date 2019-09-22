@@ -3,9 +3,6 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center"
-    android:paddingLeft="30px"
-    android:paddingTop="30px"
-    android:layout_marginBottom="50px"
     android:id="@+id/record_body">
     <ImageView
         android:layout_width="match_parent"

@@ -244,11 +244,12 @@ public class MissionData {
         this.isDone = false;
     }
 
-    public MissionData(String mName, double mLat, double mLng){
+    public MissionData(String mName, double mLat, double mLng, String mPlace){
         this.mName = mName;
         this.mLat = mLat;
         this.mLng = mLng;
         this.isDone = true;
+        this.mPlace = mPlace;
     }
 
     public MissionData() {

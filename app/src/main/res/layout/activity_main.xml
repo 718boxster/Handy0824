@@ -1391,8 +1391,7 @@
                 android:id="@+id/mission_record_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#FFFFFF"
-                android:paddingRight="30px">
+                android:background="#FFFFFF">
 
             </androidx.recyclerview.widget.RecyclerView>
 
@@ -1768,6 +1767,7 @@
                     </LinearLayout>
 
                     <Switch
+                        android:id="@+id/set_alarm"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
@@ -1813,6 +1813,7 @@
                     </LinearLayout>
 
                     <Switch
+                        android:id="@+id/set_location"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
@@ -1859,6 +1860,7 @@
                     </LinearLayout>
 
                     <Switch
+                        android:id="@+id/set_keep_screen_on"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"

@@ -8,8 +8,8 @@ public class FilterData {
     boolean sight;
 
     public FilterData() {
-        this.all = true;
-        this.done = true;
+        this.all = false;
+        this.done = false;
         this.history = true;
         this.experience = true;
         this.sight = true;

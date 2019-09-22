@@ -3,7 +3,6 @@ package com.handytrip;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -14,14 +13,17 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,19 +31,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.graphics.drawable.RoundedBitmapDrawable;
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -55,6 +51,7 @@ import com.handytrip.Utils.BusEvents;
 import com.handytrip.Utils.CustomCalloutBalloonAdapter;
 import com.handytrip.Utils.GlobalBus;
 import com.handytrip.Utils.MissionRecordListAdapter;
+import com.handytrip.Utils.RecyclerViewMargin;
 import com.handytrip.Utils.StaticData;
 import com.squareup.otto.Subscribe;
 
@@ -63,7 +60,6 @@ import net.daum.mf.map.api.MapPOIItem;
 import net.daum.mf.map.api.MapPoint;
 import net.daum.mf.map.api.MapView;
 
-import java.io.ByteArrayOutputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -105,10 +101,11 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
 
     boolean isInMap = true;
 
+    boolean isPop = false;
 
     boolean isMapHeading = true;
 
-    private static final int MISSION_DISTANCE = 1000;
+    private static final int MISSION_DISTANCE = 60;
 
     DrawerLayout drawerLayout;
 
@@ -205,25 +202,35 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
 
     NavigationView navigationView;
 
+    MissionRecordListAdapter adapter;
+
+    ArrayList<MissionRecordItem> datas = new ArrayList<>();
+    GridLayoutManager gridLayoutManager;
+    @BindView(R.id.set_alarm)
+    Switch setAlarm;
+    @BindView(R.id.set_location)
+    Switch setLocation;
+    @BindView(R.id.set_keep_screen_on)
+    Switch setKeepScreenOn;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawers();
-        } else if(isMyPageScreenOn){
+        } else if (isMyPageScreenOn) {
             setMyPageScreen(false);
             setMainScreen(true);
             setMenuMap();
-        } else if(isMyInfoScreenOn){
+        } else if (isMyInfoScreenOn) {
             setMyInfoScreen(false);
             setMainScreen(true);
             setMenuMap();
-        } else if(isMissionRecordScreenOn){
+        } else if (isMissionRecordScreenOn) {
             setMissionRecordScreen(false);
             setMainScreen(true);
             setMenuMap();
-        } else if(isSettingsScreenOn){
+        } else if (isSettingsScreenOn) {
             setSettingsScreen(false);
             setMainScreen(true);
             setMenuMap();
@@ -260,7 +267,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         }
     }
 
-    private void setMenuMap(){
+    private void setMenuMap() {
         menuMapText.setTextColor(getResources().getColor(R.color.mainThemeColor));
         menuMapImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_map_act));
 
@@ -385,16 +392,58 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        if(TextUtils.isEmpty(pref.getFcmToken())){
+        if (TextUtils.isEmpty(pref.getFcmToken())) {
             pref.setFcmToken(FirebaseInstanceId.getInstance().getToken());
-            if(! sendFcmToken(pref.getFcmToken())){
+            if (!sendFcmToken(pref.getFcmToken())) {
                 Toast.makeText(MainActivity.this, "푸시 메세지 서버와의 통신이 불안정합니다.\n알림을 받지 못할 수 있습니다.", Toast.LENGTH_SHORT).show();
             }
-        } else if(! pref.getFcmToken().equals(FirebaseInstanceId.getInstance().getToken())){
-            if(! sendFcmToken(pref.getFcmToken())){
+        } else if (!pref.getFcmToken().equals(FirebaseInstanceId.getInstance().getToken())) {
+            if (!sendFcmToken(pref.getFcmToken())) {
                 Toast.makeText(MainActivity.this, "푸시 메세지 서버와의 통신이 불안정합니다.\n알림을 받지 못할 수 있습니다.", Toast.LENGTH_SHORT).show();
             }
         }
+
+        checkboxAll.setOnCheckedChangeListener((compoundButton, b) -> staticData.filter.setAll(b));
+        checkboxDone.setOnCheckedChangeListener((compoundButton, b) -> staticData.filter.setDone(b));
+        checkboxHistory.setOnCheckedChangeListener((compoundButton, b) -> staticData.filter.setHistory(b));
+        checkboxExperience.setOnCheckedChangeListener((compoundButton, b) -> staticData.filter.setExperience(b));
+        checkboxSight.setOnCheckedChangeListener((compoundButton, b) -> staticData.filter.setSight(b));
+
+
+        adapter = new MissionRecordListAdapter(datas, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MissionRecordItem posData = ((MissionRecordItem) view.getTag());
+                Intent intent = new Intent(MainActivity.this, MissionTip.class);
+                intent.putExtra("data", posData);
+                startActivity(intent);
+            }
+        }, this);
+        gridLayoutManager = new GridLayoutManager(this, 2);
+        missionRecordList.setAdapter(adapter);
+        missionRecordList.setLayoutManager(gridLayoutManager);
+        missionRecordList.addItemDecoration(new RecyclerViewMargin(20, 2));
+
+        setAlarm.setOnCheckedChangeListener((compoundButton, b) -> {
+            if(b){
+                pref.setGetNotification(true);
+            } else{
+                //do not get Notification
+                pref.setGetNotification(false);
+            }
+        });
+
+        setLocation.setOnCheckedChangeListener((compoundButton, b) -> {
+        });
+
+        setKeepScreenOn.setOnCheckedChangeListener((compoundButton, b) -> {
+            if(b){
+                this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            } else{
+                this.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            }
+        });
+        setKeepScreenOn.setChecked(true);
 
         setFilterScreen();
 
@@ -533,6 +582,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         current = new Location("currentPoint");
         current.setLatitude(mapPoint.getMapPointGeoCoord().latitude);
         current.setLongitude(mapPoint.getMapPointGeoCoord().longitude);
+
         if (!isMissionIng) {
             Location dest = new Location("missionPoint");
             for (int i = 0; i < staticData.missionData.size(); i++) {
@@ -547,6 +597,9 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                             String.valueOf(currentMission.getmLat()),
                             String.valueOf(currentMission.getmLng())
                     );
+                    Log.d("currentMissionName", currentMission.getmName());
+                    Log.d("currentMissionLat", currentMission.getmLat() + "");
+                    Log.d("currentMissionLng", currentMission.getmLng() + "");
                     getUserMissions.enqueue(new Callback<JsonObject>() {
                         @Override
                         public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -593,7 +646,8 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                                 if (isGiveUp) {
                                     if (date.after(missionDate)) {
 //                                        if (isFirstTime) {
-                                            popMissionFound(currentMission.getmTheme(), currentMission.getmRate());
+                                        isPop = true;
+                                        popMissionFound(currentMission.getmTheme(), currentMission.getmRate());
 //                                        }
                                     } else {
                                         isMissionIng = false;
@@ -601,6 +655,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
+                                isPop = true;
                                 popMissionFound(currentMission.getmTheme(), currentMission.getmRate());
                             }
 
@@ -611,8 +666,10 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
 
                         }
                     });
-
-
+                    if (isPop) {
+                        isPop = false;
+                        break;
+                    }
                 }
             }
             Log.d("CurrentLocationChanged", "popupMissionFound");
@@ -1019,52 +1076,6 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         });
     }
 
-    private void setDoneMissionPins() {
-
-        Call<JsonObject> getUserDoneMissions = api.getUserDoneMissions(pref.getUserId());
-        getUserDoneMissions.enqueue(new Callback<JsonObject>() {
-            @Override
-            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                staticData.doneData.clear();
-                JsonObject object = response.body().getAsJsonObject();
-                JsonArray array = object.getAsJsonArray("result");
-                for (int i = 0; i < array.size(); i++) {
-                    JsonObject res = array.get(i).getAsJsonObject();
-                    staticData.doneData.add(new MissionData(
-                            res.get("M_NAME").getAsString(),
-                            res.get("M_LAT").getAsDouble(),
-                            res.get("M_LNG").getAsDouble()
-                    ));
-                }
-
-                MapPOIItem[] doneItems = new MapPOIItem[staticData.doneData.size()];
-
-                for (int i = 0; i < staticData.doneData.size(); i++) {
-                    MapPOIItem marker = new MapPOIItem();
-                    marker.setItemName(staticData.doneData.get(i).getmName());
-                    marker.setMapPoint(MapPoint.mapPointWithGeoCoord(staticData.doneData.get(i).getmLat(), staticData.doneData.get(i).getmLng()));
-                    marker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
-                    marker.setCustomImageResourceId(R.drawable.pin_completed);
-                    marker.setCustomImageAutoscale(true);
-                    marker.setCustomImageAnchor(0.5f, 1.0f);
-                    marker.setUserObject(staticData.doneData.get(i));
-//                marker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
-                    doneItems[i] = marker;
-                }
-                mapView.addPOIItems(doneItems);
-
-                BusEvents.setPins pins = new BusEvents.setPins();
-                GlobalBus.getBus().post(pins);
-            }
-
-            @Override
-            public void onFailure(Call<JsonObject> call, Throwable t) {
-
-            }
-        });
-
-
-    }
 
     private void getDoneMissions() {
         Call<JsonObject> getUserDoneMissions = api.getUserDoneMissions(pref.getUserId());
@@ -1079,7 +1090,8 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                     staticData.doneData.add(new MissionData(
                             res.get("M_NAME").getAsString(),
                             res.get("M_LAT").getAsDouble(),
-                            res.get("M_LNG").getAsDouble()
+                            res.get("M_LNG").getAsDouble(),
+                            res.get("M_PLACE").getAsString()
                     ));
                 }
                 BusEvents.setPins pins = new BusEvents.setPins();
@@ -1098,27 +1110,13 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         if (on) {
             naviBar.setVisibility(View.VISIBLE);
             missionRecordScreen.setVisibility(View.VISIBLE);
-
-            ArrayList<MissionRecordItem> datas = new ArrayList<>();
             Call<JsonObject> getAllUserMissions = api.getAllUserMissions(pref.getUserId());
-            MissionRecordListAdapter adapter = new MissionRecordListAdapter(datas, new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    MissionRecordItem posData = ((MissionRecordItem) view.getTag());
-
-                    Intent intent = new Intent(MainActivity.this, MissionTip.class);
-                    intent.putExtra("data", posData);
-                    startActivity(intent);
-                }
-            }, this);
-            GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
-            missionRecordList.setAdapter(adapter);
-            missionRecordList.setLayoutManager(gridLayoutManager);
             getAllUserMissions.enqueue(new Callback<JsonObject>() {
                 @Override
                 public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                     JsonObject obj = response.body();
                     JsonArray ary = obj.getAsJsonArray("result");
+                    datas.clear();
                     for (int i = 0; i < ary.size(); i++) {
                         JsonObject resObj = ary.get(i).getAsJsonObject();
                         datas.add(new MissionRecordItem(
@@ -1131,6 +1129,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                                 resObj.get("M_LAT").getAsString(),
                                 resObj.get("M_LNG").getAsString()
                         ));
+                        Log.d("recordImgUrl", resObj.get("M_IMG").getAsString());
                     }
                     adapter.notifyDataSetChanged();
                 }
@@ -1465,7 +1464,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                     .into(new CustomTarget<Drawable>() {
                         @Override
                         public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                            Bitmap bitmap = ((BitmapDrawable)resource).getBitmap();
+                            Bitmap bitmap = ((BitmapDrawable) resource).getBitmap();
                             bitmap = Bitmap.createScaledBitmap(bitmap, 1080, 1440, false);
                             missionQuestionImage.setBackground(new BitmapDrawable(bitmap));
                         }
@@ -1593,6 +1592,9 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                     else
                         doneData.add(staticData.missionData.get(i));
                     break;
+                default:
+                    doneData.add(staticData.missionData.get(i));
+                    break;
             }
         }
 
@@ -1602,6 +1604,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         MapPOIItem[] doneItems = new MapPOIItem[doneData.size()];
 
         if (staticData.filter.isDone()) {
+            Log.d("setDonePin", "adding");
 //            setDoneMissionPins();
             for (int i = 0; i < doneData.size(); i++) {
                 MapPOIItem marker = new MapPOIItem();
@@ -1614,11 +1617,15 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 marker.setUserObject(doneData.get(i));
                 doneItems[i] = marker;
             }
-            if (doneItems.length > 0)
-                mapView.addPOIItems(doneItems);
+            if (doneItems.length > 0) {
+                if (staticData.filter.isDone()) {
+                    mapView.addPOIItems(doneItems);
+                }
+            }
         }
 
         if (staticData.filter.isHistory()) {
+            Log.d("setHistoryPin", "adding");
             for (int i = 0; i < historyData.size(); i++) {
                 MapPOIItem marker = new MapPOIItem();
                 marker.setItemName(historyData.get(i).getmName());
@@ -1630,10 +1637,16 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 marker.setUserObject(historyData.get(i));
                 historyItems[i] = marker;
             }
-            if (historyItems.length > 0)
-                mapView.addPOIItems(historyItems);
+            if (historyItems.length > 0) {
+                if (staticData.filter.isHistory()) {
+                    mapView.addPOIItems(historyItems);
+                }
+            }
+
         }
+
         if (staticData.filter.isExperience()) {
+            Log.d("setExperiencePin", "adding");
             for (int i = 0; i < experienceData.size(); i++) {
                 MapPOIItem marker = new MapPOIItem();
                 marker.setItemName(experienceData.get(i).getmName());
@@ -1645,12 +1658,17 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 marker.setUserObject(experienceData.get(i));
                 experienceItems[i] = marker;
             }
-            if (experienceItems.length > 0)
-                mapView.addPOIItems(experienceItems);
+            if (experienceItems.length > 0) {
+                if (staticData.filter.isExperience()) {
+                    mapView.addPOIItems(experienceItems);
+                }
+            }
+
         }
 
 
         if (staticData.filter.isSight()) {
+            Log.d("setSightPin", "adding");
             for (int i = 0; i < sightData.size(); i++) {
                 MapPOIItem marker = new MapPOIItem();
                 marker.setItemName(sightData.get(i).getmName());
@@ -1662,8 +1680,12 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 marker.setUserObject(sightData.get(i));
                 sightItems[i] = marker;
             }
-            if (sightItems.length > 0)
-                mapView.addPOIItems(sightItems);
+            if (sightItems.length > 0) {
+                if (staticData.filter.isSight()) {
+                    mapView.addPOIItems(sightItems);
+                }
+            }
+
         }
     }
 
@@ -1757,7 +1779,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        if(menuItem.getItemId() == R.id.settings){
+        if (menuItem.getItemId() == R.id.settings) {
             setSettingsScreen(true);
             setMainScreen(false);
             setMissionFoundScreen(false);
@@ -1881,9 +1903,9 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         setSettingsScreen(false);
     }
 
-    private void setSettingsScreen(boolean on){
+    private void setSettingsScreen(boolean on) {
         isSettingsScreenOn = on;
-        if(on){
+        if (on) {
             settingsScreen.setVisibility(View.VISIBLE);
         } else {
             settingsScreen.setVisibility(View.GONE);
