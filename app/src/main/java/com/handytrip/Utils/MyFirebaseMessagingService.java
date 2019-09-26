@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.renderscript.RenderScript;
 import android.util.Log;
 import android.widget.Toast;
@@ -30,11 +32,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public boolean isSuccess = false;
     public Preferences pref;
     public MainActivity mainActivity = MainActivity.getInstance();
+    public NotificationDB db;
     @Override
     public void onCreate() {
         super.onCreate();
         api = RetrofitInit.getRetrofit();
         pref = new Preferences(this);
+        db = NotificationDB.getInstance(this);
     }
 
     @Override
@@ -49,6 +53,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         super.onMessageReceived(remoteMessage);
         Log.d("remoteMessage", remoteMessage.getData().get("message"));
 //        Toast.makeText(this, remoteMessage.getNotification().getBody(), Toast.LENGTH_SHORT).show();
+        db.insertNotification(remoteMessage.getData().get("message"));
+
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                BusEvents.refreshList refreshList = new BusEvents.refreshList();
+                GlobalBus.getBus().post(refreshList);
+            }
+        });
+
+
         if (pref.isGetNotification()) {
             sendNotification(remoteMessage.getData().get("message"));
         }

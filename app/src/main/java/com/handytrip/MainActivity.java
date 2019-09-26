@@ -1802,6 +1802,9 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
             setMyInfoScreen(false);
             isInMap = false;
             isMissionIng = true;
+        } else if(menuItem.getItemId() == R.id.notice){
+            Intent intent = new Intent(MainActivity.this, Notifications.class);
+            startActivity(intent);
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;

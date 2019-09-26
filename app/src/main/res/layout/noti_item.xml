@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingLeft="20px">
+
+            <TextView
+                android:id="@+id/noti_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20px"
+                android:paddingTop="10px"
+                android:paddingBottom="10px"
+                android:text="yyyy. mm. dd. PM 3:23"
+                android:textSize="40px" />
+
+            <TextView
+                android:id="@+id/noti_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10px"
+                android:paddingRight="40px"
+                android:paddingLeft="20px"
+                android:text="알리미!!"
+                android:textColor="#000000"
+                android:textSize="50px" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/delete_noti"
+            android:layout_width="70px"
+            android:layout_height="70px"
+            android:layout_marginRight="40px"
+            android:src="@drawable/check" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:background="#d2d2d2" />
+</LinearLayout>

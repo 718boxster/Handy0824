@@ -18,7 +18,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".MissionTip"></activity>
+        <activity android:name=".Notifications"></activity>
+        <activity android:name=".MissionTip" />
         <activity
             android:name=".SignUpActivity"
             android:windowSoftInputMode="adjustResize" />

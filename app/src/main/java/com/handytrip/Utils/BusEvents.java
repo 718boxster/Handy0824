@@ -5,4 +5,10 @@ public class BusEvents {
         public setPins() {
         }
     }
+
+    public static class refreshList{
+        public refreshList(){
+
+        }
+    }
 }
