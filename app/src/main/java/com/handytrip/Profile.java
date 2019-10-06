@@ -265,6 +265,7 @@ public class Profile extends BaseActivity {
                         bitmap.getHeight(), matrix, true);
 
                 Glide.with(this).load(bitmap).apply(new RequestOptions().circleCrop()).into(profilePicture);
+                profilePicture.setPadding(10, 10, 10, 10);
                 profilePicture.setScaleType(ImageView.ScaleType.FIT_XY);
                 String root = Environment.getExternalStorageDirectory().toString();
                 File myDir = new File(root + "/Pictures");
@@ -316,9 +317,36 @@ public class Profile extends BaseActivity {
                 // preview image
                 bitmap = Bitmap.createScaledBitmap(bitmap, 140, 140, false);
 
+                File f = new File(selectedImagePath);
+                int rotate = 0;
+                try {
+                    ExifInterface exif = new ExifInterface(f.getAbsolutePath());
+                    int orientation = exif.getAttributeInt(
+                            ExifInterface.TAG_ORIENTATION,
+                            ExifInterface.ORIENTATION_NORMAL);
+
+                    switch (orientation) {
+                        case ExifInterface.ORIENTATION_ROTATE_270:
+                            rotate = 270;
+                            break;
+                        case ExifInterface.ORIENTATION_ROTATE_180:
+                            rotate = 180;
+                            break;
+                        case ExifInterface.ORIENTATION_ROTATE_90:
+                            rotate = 90;
+                            break;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                Matrix matrix = new Matrix();
+                matrix.postRotate(rotate);
+                bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
+                        bitmap.getHeight(), matrix, true);
 
 //                profilePicture.setImageBitmap(bitmap);
                 Glide.with(this).load(bitmap).apply(new RequestOptions().circleCrop()).into(profilePicture);
+                profilePicture.setPadding(10, 10, 10, 10);
                 profilePicture.setScaleType(ImageView.ScaleType.FIT_XY);
 
                 selectedImagePath = selectedImage.toString();

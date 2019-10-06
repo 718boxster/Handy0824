@@ -84,10 +84,9 @@
         android:paddingBottom="10px">
 
         <ImageView
-            android:layout_width="140px"
+            android:layout_width="30px"
             android:layout_height="140px"
-            android:padding="10px"
-            android:src="@drawable/email_selector" />
+            android:padding="10px" />
         <LinearLayout
             android:layout_width="0px"
             android:layout_weight="1"
@@ -131,10 +130,9 @@
         android:paddingBottom="10px">
 
         <ImageView
-            android:layout_width="140px"
+            android:layout_width="30px"
             android:layout_height="140px"
-            android:padding="10px"
-            android:src="@drawable/email_selector" />
+            android:padding="10px" />
         <LinearLayout
             android:layout_width="0px"
             android:layout_weight="1"
@@ -178,10 +176,9 @@
         android:paddingBottom="10px">
 
         <ImageView
-            android:layout_width="140px"
+            android:layout_width="30px"
             android:layout_height="140px"
-            android:padding="10px"
-            android:src="@drawable/email_selector" />
+            android:padding="10px" />
 
         <TextView
             android:layout_width="0px"
