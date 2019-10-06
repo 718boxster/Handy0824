@@ -1434,13 +1434,20 @@
                     android:src="@drawable/account" />
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="0px"
+                    android:layout_weight="1"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
                     android:paddingLeft="50px"
-                    android:text="내 정보"
+                    android:text="프로필"
                     android:textColor="#4a4a4a"
                     android:textSize="40px" />
+
+                <ImageView
+                    android:layout_width="60px"
+                    android:layout_height="60px"
+                    android:gravity="center_vertical"
+                    android:src="@drawable/right_arrow_grey"/>
             </LinearLayout>
 
             <LinearLayout
@@ -1456,13 +1463,20 @@
                     android:src="@drawable/menu_favorite" />
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="0px"
+                    android:layout_weight="1"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
                     android:paddingLeft="50px"
                     android:text="리워드"
                     android:textColor="#4a4a4a"
                     android:textSize="40px" />
+
+                <ImageView
+                    android:layout_width="60px"
+                    android:layout_height="60px"
+                    android:gravity="center_vertical"
+                    android:src="@drawable/right_arrow_grey"/>
             </LinearLayout>
 
             <LinearLayout
@@ -1478,11 +1492,70 @@
                     android:src="@drawable/mission_history" />
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="0px"
+                    android:layout_weight="1"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
                     android:paddingLeft="50px"
                     android:text="미션 기록"
+                    android:textColor="#4a4a4a"
+                    android:textSize="40px" />
+
+                <ImageView
+                    android:layout_width="60px"
+                    android:layout_height="60px"
+                    android:gravity="center_vertical"
+                    android:src="@drawable/right_arrow_grey"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/mypage_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="50px">
+
+                <ImageView
+                    android:layout_width="60px"
+                    android:layout_height="60px"
+                    android:src="@drawable/ic_email_black_48dp" />
+
+                <TextView
+                    android:layout_width="0px"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="50px"
+                    android:text="이메일"
+                    android:textColor="#4a4a4a"
+                    android:textSize="40px" />
+
+                <ImageView
+                    android:layout_width="60px"
+                    android:layout_height="60px"
+                    android:gravity="center_vertical"
+                    android:src="@drawable/right_arrow_grey"/>
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/mypage_logout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="50px">
+
+                <ImageView
+                    android:layout_width="60px"
+                    android:layout_height="60px"
+                    android:src="@drawable/ic_power_settings_new_black_48dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="50px"
+                    android:text="로그아웃"
                     android:textColor="#4a4a4a"
                     android:textSize="40px" />
             </LinearLayout>

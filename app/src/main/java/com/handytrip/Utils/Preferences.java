@@ -10,6 +10,9 @@ public class Preferences {
 
     private static String USER_ID = "USER_ID";
     private static String USER_PW = "USER_PW";
+    private static String PROFILE_IMG = "PROFILE_IMG";
+    private static String USER_NICK = "USER_NICK";
+    private static String USER_NAME = "USER_NAME";
 
     private static String FCM_TOKEN = "FCM_TOKEN";
 
@@ -51,5 +54,29 @@ public class Preferences {
     }
     public boolean isGetNotification(){
         return pref.getBoolean(GET_NOTIFICATION, true);
+    }
+
+    public void setProfileImg(String uri){
+        editor.putString(PROFILE_IMG, uri);
+        editor.commit();
+    }
+    public String getProfileImg(){
+        return pref.getString(PROFILE_IMG, "");
+    }
+
+    public void setUserNick(String nickname){
+        editor.putString(USER_NICK, nickname);
+        editor.commit();
+    }
+    public String getUserNick(){
+        return pref.getString(USER_NICK, "");
+    }
+
+    public void setUserName(String name){
+        editor.putString(USER_NAME, name);
+        editor.commit();
+    }
+    public String getUserName(){
+        return pref.getString(USER_NAME, "");
     }
 }

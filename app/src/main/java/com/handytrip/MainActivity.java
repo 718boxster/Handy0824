@@ -1,12 +1,16 @@
 package com.handytrip;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -16,7 +20,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -30,6 +33,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -37,6 +41,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.navigation.NavigationView;
@@ -212,6 +217,10 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
     Switch setLocation;
     @BindView(R.id.set_keep_screen_on)
     Switch setKeepScreenOn;
+    @BindView(R.id.mypage_email)
+    LinearLayout mypageEmail;
+    @BindView(R.id.mypage_logout)
+    LinearLayout mypageLogout;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -372,10 +381,12 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
     }
 
     public static MainActivity mainActivity;
-    public static MainActivity getInstance(){
-        if(mainActivity == null){
+
+    public static MainActivity getInstance() {
+        if (mainActivity == null) {
             mainActivity = new MainActivity();
-        } return mainActivity;
+        }
+        return mainActivity;
     }
 
 
@@ -397,6 +408,14 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
 
         navigationView = findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        ImageView profileImg = navigationView.getHeaderView(0).findViewById(R.id.profile_img);
+        try{
+            profileImg.setScaleType(ImageView.ScaleType.FIT_XY);
+            Glide.with(this).load(Uri.parse(pref.getProfileImg())).apply(new RequestOptions().circleCrop()).into(profileImg);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
 
         sendFcmToken(FirebaseInstanceId.getInstance().getToken());
 
@@ -435,9 +454,9 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         missionRecordList.addItemDecoration(new RecyclerViewMargin(20, 2));
 
         setAlarm.setOnCheckedChangeListener((compoundButton, b) -> {
-            if(b){
+            if (b) {
                 pref.setGetNotification(true);
-            } else{
+            } else {
                 //do not get Notification
                 pref.setGetNotification(false);
             }
@@ -448,9 +467,9 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         });
 
         setKeepScreenOn.setOnCheckedChangeListener((compoundButton, b) -> {
-            if(b){
+            if (b) {
                 this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            } else{
+            } else {
                 this.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             }
         });
@@ -1802,7 +1821,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
             setMyInfoScreen(false);
             isInMap = false;
             isMissionIng = true;
-        } else if(menuItem.getItemId() == R.id.notice){
+        } else if (menuItem.getItemId() == R.id.notice) {
             Intent intent = new Intent(MainActivity.this, Notifications.class);
             startActivity(intent);
         }
@@ -1812,15 +1831,17 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
 
     @OnClick(R.id.mypage_myinfo)
     public void onMypageMyinfoClicked() {
-        setMainScreen(false);
-        setMissionFoundScreen(false);
-        setMissionReadyScreen(false);
-        setMissionQuestionScreen(false);
-        setMissionResultScreen(false);
-        setMissionFinishScreen(false);
-        setMyPageScreen(false);
-        setMyInfoScreen(true);
-        setSettingsScreen(false);
+//        setMainScreen(false);
+//        setMissionFoundScreen(false);
+//        setMissionReadyScreen(false);
+//        setMissionQuestionScreen(false);
+//        setMissionResultScreen(false);
+//        setMissionFinishScreen(false);
+//        setMyPageScreen(false);
+//        setMyInfoScreen(true);
+//        setSettingsScreen(false);
+        Intent intent = new Intent(MainActivity.this, Profile.class);
+        startActivityForResult(intent, 7);
     }
 
     @OnClick(R.id.mypage_reward)
@@ -1924,5 +1945,48 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         } else {
             settingsScreen.setVisibility(View.GONE);
         }
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == 7) {
+                try {
+                    String imgUri = data.getStringExtra("imgUri");
+                    Uri img = Uri.parse(imgUri);
+                    ImageView profileImg = navigationView.findViewById(R.id.profile_img);
+                    profileImg.setScaleType(ImageView.ScaleType.FIT_XY);
+                    Glide.with(this).load(img).apply(new RequestOptions().circleCrop()).into(profileImg);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    @OnClick(R.id.mypage_email)
+    public void onMypageEmailClicked() {
+        ProfileDialog accountDialog = new ProfileDialog(this, "ACCOUNT");
+        accountDialog.show();
+        accountDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+    }
+
+    @OnClick(R.id.mypage_logout)
+    public void onMypageLogoutClicked() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("로그아웃");
+        builder.setMessage("로그아웃 하시겠습니까?");
+        builder.setPositiveButton("로그아웃", (dialogInterface, i) -> {
+            dialogInterface.dismiss();
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }).setNegativeButton("취소", (dialogInterface, i) -> {
+            dialogInterface.dismiss();
+        });
+        Dialog dialog = builder.create();
+        dialog.show();
     }
 }
