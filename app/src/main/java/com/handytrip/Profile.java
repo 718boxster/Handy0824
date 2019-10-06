@@ -2,6 +2,7 @@ package com.handytrip;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -297,15 +298,15 @@ public class Profile extends BaseActivity {
             if (data != null) {
 
                 Uri selectedImage = data.getData();
-                selectedImagePath = selectedImage.toString();
 
-//                String[] filePath = { MediaStore.Images.Media.DATA };
-//                Cursor c = getContentResolver().query(selectedImage, filePath,
-//                        null, null, null);
-//                c.moveToFirst();
-//                int columnIndex = c.getColumnIndex(filePath[0]);
-//                selectedImagePath = c.getString(columnIndex);
-//                c.close();
+
+                String[] filePath = { MediaStore.Images.Media.DATA };
+                Cursor c = getContentResolver().query(selectedImage, filePath,
+                        null, null, null);
+                c.moveToFirst();
+                int columnIndex = c.getColumnIndex(filePath[0]);
+                selectedImagePath = c.getString(columnIndex);
+                c.close();
 
 //                if (selectedImagePath != null) {
 //                    txt_image_path.setText(selectedImagePath);
@@ -319,6 +320,8 @@ public class Profile extends BaseActivity {
 //                profilePicture.setImageBitmap(bitmap);
                 Glide.with(this).load(bitmap).apply(new RequestOptions().circleCrop()).into(profilePicture);
                 profilePicture.setScaleType(ImageView.ScaleType.FIT_XY);
+
+                selectedImagePath = selectedImage.toString();
             } else {
 //                Toast.makeText(getApplicationContext(), "Cancelled",
 //                        Toast.LENGTH_SHORT).show();
