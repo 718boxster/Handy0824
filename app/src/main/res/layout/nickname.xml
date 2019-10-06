@@ -39,6 +39,7 @@
             android:gravity="center"
             android:textSize="14sp"
             android:textColor="#FFFFFF"
+            android:singleLine="true"
             android:textColorHint="#FFFFFF"/>
     </LinearLayout>
 

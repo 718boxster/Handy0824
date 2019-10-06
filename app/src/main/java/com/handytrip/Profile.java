@@ -1,11 +1,7 @@
 package com.handytrip;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -22,27 +18,17 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.android.material.navigation.NavigationView;
-import com.gun0912.tedpermission.PermissionListener;
 import com.handytrip.Utils.AutoLayout;
 import com.handytrip.Utils.BaseActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -62,11 +48,16 @@ public class Profile extends BaseActivity {
     LinearLayout profileUserName;
     @BindView(R.id.profile_account)
     LinearLayout profileAccount;
+    @BindView(R.id.my_nick)
+    TextView myNick;
+    @BindView(R.id.my_name)
+    TextView myName;
 
     private Intent pictureActionIntent = null;
     Bitmap bitmap;
     String selectedImagePath;
     Intent intent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,18 +66,34 @@ public class Profile extends BaseActivity {
         AutoLayout.setResizeView(this);
         intent = new Intent();
 
-        if(! TextUtils.isEmpty(pref.getProfileImg())){
+        if (!TextUtils.isEmpty(pref.getProfileImg())) {
             Glide.with(this).load(Uri.parse(pref.getProfileImg())).apply(new RequestOptions().circleCrop()).into(profilePicture);
             profilePicture.setPadding(10, 10, 10, 10);
+        }
+
+        if (!TextUtils.isEmpty(pref.getUserNick())) {
+            if(" ".equals(pref.getUserNick())){
+                myNick.setVisibility(View.GONE);
+            } else{
+                myNick.setVisibility(View.VISIBLE);
+            }
+            myNick.setText(pref.getUserNick());
+        }
+
+        if(! TextUtils.isEmpty(pref.getUserName())){
+            myName.setVisibility(View.VISIBLE);
+            myName.setText(pref.getUserName());
+        } else{
+            myName.setVisibility(View.GONE);
         }
     }
 
     @Override
     public void onBackPressed() {
 //        super.onBackPressed();
-        try{
+        try {
             Log.d("IMAGE_URL", selectedImagePath);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         setResult(RESULT_OK, intent);
@@ -109,7 +116,7 @@ public class Profile extends BaseActivity {
                     public void done(String done) {
                         TextView nickname = findViewById(R.id.my_nick);
                         nickname.setVisibility(View.VISIBLE);
-                        if(" ".equals(pref.getUserNick())){
+                        if (" ".equals(pref.getUserNick())) {
                             nickname.setVisibility(View.GONE);
                         }
                         nickname.setText(pref.getUserNick());
@@ -151,7 +158,7 @@ public class Profile extends BaseActivity {
 
                         pictureActionIntent = new Intent(
                                 Intent.ACTION_PICK,
-                                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                         startActivityForResult(
                                 pictureActionIntent,
                                 1);
@@ -165,19 +172,19 @@ public class Profile extends BaseActivity {
 
                         Intent intent = new Intent(
                                 MediaStore.ACTION_IMAGE_CAPTURE);
-                        File f = new File(android.os.Environment
+                        File f = new File(Environment
                                 .getExternalStorageDirectory().toString(), "/Pictures/temp.jpg");
-                        if(f.exists()){
+                        if (f.exists()) {
                             f.delete();
-                            try{
-                                f.createNewFile();
-                            } catch (Exception e){
-                                e.printStackTrace();
-                            }
-                        } else{
                             try {
                                 f.createNewFile();
-                            } catch (Exception e){
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            try {
+                                f.createNewFile();
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         }
@@ -192,7 +199,6 @@ public class Profile extends BaseActivity {
                 });
         myAlertDialog.show();
     }
-
 
 
     @Override
@@ -308,7 +314,6 @@ public class Profile extends BaseActivity {
                 bitmap = BitmapFactory.decodeFile(selectedImagePath); // load
                 // preview image
                 bitmap = Bitmap.createScaledBitmap(bitmap, 140, 140, false);
-
 
 
 //                profilePicture.setImageBitmap(bitmap);
