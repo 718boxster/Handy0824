@@ -92,28 +92,28 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
     boolean isMissionIng = false;
     boolean isCurrentMissionCorrect = false;
 
+    //현재 표시중인 화면 제어용 변수
+    boolean isFilterScreenOn = false;  //필터
+    boolean isMissionFoundScreenOn = false; //미션발견
+    boolean isMissionReadyScreenOn = false; //미션준비
+    boolean isMissionQuestionScreenOn = false; //미션문제
+    boolean isMissionResultScreenOn = false; //미션결과
+    boolean isMissionTipScreenOn = false; //미션팁
+    boolean isMyPageScreenOn = false; //마이페이지
+    boolean isMyInfoScreenOn = false; //내정보
+    boolean isSettingsScreenOn = false; //설정
+    boolean isMissionRecordScreenOn = false; //미션기록
+    boolean isInMap = true; //현재 지도가 표시되어지고 있는지
+    boolean isPop = false; //미션발견 팝업이 실행중인지
+    boolean isMapHeading = true; //지도 방향을 고정할것인지
 
-    boolean isFilterScreenOn = false;
-    boolean isMissionFoundScreenOn = false;
-    boolean isMissionReadyScreenOn = false;
-    boolean isMissionQuestionScreenOn = false;
-    boolean isMissionResultScreenOn = false;
-    boolean isMissionTipScreenOn = false;
-    boolean isMyPageScreenOn = false;
-    boolean isMyInfoScreenOn = false;
-    boolean isSettingsScreenOn = false;
-    boolean isMissionRecordScreenOn = false;
+    private static final int MISSION_DISTANCE = 60; //미션발견 최소 거리 (60미터)
 
-    boolean isInMap = true;
+    DrawerLayout drawerLayout; //왼쪽의 네비게이션바
 
-    boolean isPop = false;
 
-    boolean isMapHeading = true;
-
-    private static final int MISSION_DISTANCE = 60;
-
-    DrawerLayout drawerLayout;
-
+    //화면에 보여지는 뷰들을 정의한 부분
+    //ButterKnife를 사용했기때문에 onCreate에서 뷰를 찾아주는 작업을 하지 않아도 됨.
     @BindView(R.id.s1)
     TextView s1;
     @BindView(R.id.s2)
@@ -204,13 +204,6 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
     ImageView settingsBack;
     @BindView(R.id.settingsScreen)
     ScrollView settingsScreen;
-
-    NavigationView navigationView;
-
-    MissionRecordListAdapter adapter;
-
-    ArrayList<MissionRecordItem> datas = new ArrayList<>();
-    GridLayoutManager gridLayoutManager;
     @BindView(R.id.set_alarm)
     Switch setAlarm;
     @BindView(R.id.set_location)
@@ -221,73 +214,6 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
     LinearLayout mypageEmail;
     @BindView(R.id.mypage_logout)
     LinearLayout mypageLogout;
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    @Override
-    public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawers();
-        } else if (isMyPageScreenOn) {
-            setMyPageScreen(false);
-            setMainScreen(true);
-            setMenuMap();
-        } else if (isMyInfoScreenOn) {
-            setMyInfoScreen(false);
-            setMainScreen(true);
-            setMenuMap();
-        } else if (isMissionRecordScreenOn) {
-            setMissionRecordScreen(false);
-            setMainScreen(true);
-            setMenuMap();
-        } else if (isSettingsScreenOn) {
-            setSettingsScreen(false);
-            setMainScreen(true);
-            setMenuMap();
-        } else if (isMissionFoundScreenOn) {
-            setMissionFoundScreen(false);
-            setMainScreen(true);
-        } else if (isMissionReadyScreenOn) {
-            setMissionReadyScreen(false);
-            setMainScreen(true);
-        } else if (isMissionQuestionScreenOn) {
-            setMissionQuestionScreen(false);
-            setMainScreen(true);
-        } else if (isMissionResultScreenOn) {
-            setMissionResultScreen(false);
-            setMainScreen(true);
-        } else if (isMissionTipScreenOn) {
-            setMissionFinishScreen(false);
-            setMainScreen(true);
-        } else if (isFilterScreenOn) {
-            setFilterScreen(false);
-            setMainScreen(true);
-        } else if (!isInMap) {
-            naviBar.setVisibility(View.VISIBLE);
-            menuMap.performClick();
-        } else {
-            if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
-                backKeyPressedTime = System.currentTimeMillis();
-                toast = Toast.makeText(this, "뒤로가기 버튼을 한번 더 누르시면 종료됩니다.", Toast.LENGTH_SHORT);
-                toast.show();
-            } else if (System.currentTimeMillis() <= backKeyPressedTime + 2000) {
-                toast.cancel();
-                finish();
-            }
-        }
-    }
-
-    private void setMenuMap() {
-        menuMapText.setTextColor(getResources().getColor(R.color.mainThemeColor));
-        menuMapImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_map_act));
-
-        menuRecordText.setTextColor(Color.parseColor("#80000000"));
-        menuRecordImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_history));
-
-        menuMyPageText.setTextColor(Color.parseColor("#80000000"));
-        menuMyPageImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_mypage));
-    }
-
-    StaticData staticData = StaticData.getInstance();
     @BindView(R.id.set_filter)
     ImageView setFilter;
     @BindView(R.id.close_filter)
@@ -367,7 +293,86 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
     @BindView(R.id.mission_question_screen)
     LinearLayout missionQuestionScreen;
 
+    NavigationView navigationView;
+
+    MissionRecordListAdapter adapter;
+
+    ArrayList<MissionRecordItem> datas = new ArrayList<>(); //서버에서 받아온 미션 기록을 저장할 어레이리스트
+    GridLayoutManager gridLayoutManager;
+
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
+    public void onBackPressed() { //뒤로가기 버튼을 눌렀을때
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {  //제일 먼저 왼쪽의 네비게이션바가 실행되어지고있는지 확인 후 닫음
+            drawerLayout.closeDrawers();
+        } else if (isMyPageScreenOn) { //이하의 코드는 각 화면이 실행되어지고 있는지 확인 후 최종적으로 지도 화면이 남게되면 앱을 종료시킴
+            setMyPageScreen(false);
+            setMainScreen(true);
+            setMenuMap();
+        } else if (isMyInfoScreenOn) {
+            setMyInfoScreen(false);
+            setMainScreen(true);
+            setMenuMap();
+        } else if (isMissionRecordScreenOn) {
+            setMissionRecordScreen(false);
+            setMainScreen(true);
+            setMenuMap();
+        } else if (isSettingsScreenOn) {
+            setSettingsScreen(false);
+            setMainScreen(true);
+            setMenuMap();
+        } else if (isMissionFoundScreenOn) {
+            setMissionFoundScreen(false);
+            setMainScreen(true);
+        } else if (isMissionReadyScreenOn) {
+            setMissionReadyScreen(false);
+            setMainScreen(true);
+        } else if (isMissionQuestionScreenOn) {
+            setMissionQuestionScreen(false);
+            setMainScreen(true);
+        } else if (isMissionResultScreenOn) {
+            setMissionResultScreen(false);
+            setMainScreen(true);
+        } else if (isMissionTipScreenOn) {
+            setMissionFinishScreen(false);
+            setMainScreen(true);
+        } else if (isFilterScreenOn) {
+            setFilterScreen(false);
+            setMainScreen(true);
+        } else if (!isInMap) {
+            naviBar.setVisibility(View.VISIBLE);
+            menuMap.performClick();
+        } else {
+            if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
+                backKeyPressedTime = System.currentTimeMillis();
+                toast = Toast.makeText(this, "뒤로가기 버튼을 한번 더 누르시면 종료됩니다.", Toast.LENGTH_SHORT);
+                toast.show();
+            } else if (System.currentTimeMillis() <= backKeyPressedTime + 2000) {
+                toast.cancel();
+                finish();
+            }
+        }
+    }
+
+    //하단 메뉴의 지도 탭 터치시
+    private void setMenuMap() {
+        //지도 메뉴를 활성화 색으로 바꾸고 나머지 메뉴 비활성화
+        menuMapText.setTextColor(getResources().getColor(R.color.mainThemeColor));
+        menuMapImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_map_act));
+
+        menuRecordText.setTextColor(Color.parseColor("#80000000"));
+        menuRecordImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_history));
+
+        menuMyPageText.setTextColor(Color.parseColor("#80000000"));
+        menuMyPageImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_mypage));
+    }
+
+    //StaticData.java 파일에 정의되어있는 static 변수들을 가져옴
+    StaticData staticData = StaticData.getInstance();
+
+
+    @Override //네비게이션바에서 메뉴 클릭시 메뉴 실행 후 네비게이션바 닫음
     public boolean onOptionsItemSelected(MenuItem item) {
         //menu click event
 
@@ -380,7 +385,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         return super.onOptionsItemSelected(item);
     }
 
-    public static MainActivity mainActivity;
+    public static MainActivity mainActivity; //메인액티비티를 싱글톤으로 실행하기 위해 스태틱 변수로 불러올 수 있게 함
 
     public static MainActivity getInstance() {
         if (mainActivity == null) {
@@ -397,28 +402,31 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         ButterKnife.bind(this);
         drawerLayout = findViewById(R.id.drawerLayout);
         mission_ready_img = findViewById(R.id.mission_ready_img);
+        //맵뷰는 다음맵을 사용했음
         mapView = new MapView(this);
         mapViewContainer = findViewById(R.id.mapView);
         mapViewContainer.addView(mapView);
-        mapView.setCurrentLocationEventListener(this);
+        mapView.setCurrentLocationEventListener(this); //위치 변화가 있을때 실행되는 이벤트 리스너
         mapView.setMapViewEventListener(this);
-        mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOnWithHeading);
+        mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOnWithHeading); //맵 방향 회전을 할것인지
         mapView.setCalloutBalloonAdapter(new CustomCalloutBalloonAdapter());
-        mapView.setPOIItemEventListener(this);
+        mapView.setPOIItemEventListener(this); //맵뷰에서 핀터치시 실행되는 이벤트 리스너
 
         navigationView = findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        //네비게이션바에 있는 프로필 이미지 뷰
         ImageView profileImg = navigationView.getHeaderView(0).findViewById(R.id.profile_img);
-        try{
+        try{ //Glide 라이브러리를 사용해 동그랗게 편집해서 넣어줌
             profileImg.setScaleType(ImageView.ScaleType.FIT_XY);
             Glide.with(this).load(Uri.parse(pref.getProfileImg())).apply(new RequestOptions().circleCrop()).into(profileImg);
         } catch (Exception e){
             e.printStackTrace();
         }
-
+        //알림을 받기위한 FCM 토큰을 서버에 저장하는 함수
         sendFcmToken(FirebaseInstanceId.getInstance().getToken());
 
+        //저장되어있는 FCM토큰이 없는 경우 파이어베이스에 토큰을 요청해서 저장
         if (TextUtils.isEmpty(pref.getFcmToken())) {
             pref.setFcmToken(FirebaseInstanceId.getInstance().getToken());
             if (!sendFcmToken(pref.getFcmToken())) {
@@ -432,6 +440,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
 
 //        Log.d("FCMFCMFCM", pref.getFcmToken());
 
+        //필터 체크박스의 옵션값 저장장
         checkboxAll.setOnCheckedChangeListener((compoundButton, b) -> staticData.filter.setAll(b));
         checkboxDone.setOnCheckedChangeListener((compoundButton, b) -> staticData.filter.setDone(b));
         checkboxHistory.setOnCheckedChangeListener((compoundButton, b) -> staticData.filter.setHistory(b));
@@ -441,9 +450,9 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
 
         adapter = new MissionRecordListAdapter(datas, new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                MissionRecordItem posData = ((MissionRecordItem) view.getTag());
-                Intent intent = new Intent(MainActivity.this, MissionTip.class);
+            public void onClick(View view) { //미션 기록 리스트 아이템 클릭 리스너
+                MissionRecordItem posData = ((MissionRecordItem) view.getTag()); //해당 아이템의 정보를 불러와서
+                Intent intent = new Intent(MainActivity.this, MissionTip.class); //MissionTip 액티비티에 전송하며 MissionTip 액티비티 실행
                 intent.putExtra("data", posData);
                 startActivity(intent);
             }
@@ -453,6 +462,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         missionRecordList.setLayoutManager(gridLayoutManager);
         missionRecordList.addItemDecoration(new RecyclerViewMargin(20, 2));
 
+        //알림설정 온/오프
         setAlarm.setOnCheckedChangeListener((compoundButton, b) -> {
             if (b) {
                 pref.setGetNotification(true);
@@ -463,9 +473,11 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         });
         setAlarm.setChecked(false);
 
+        //위치설정 온/오프 : 기능없음
         setLocation.setOnCheckedChangeListener((compoundButton, b) -> {
         });
 
+        //디스플레이 항상 켜짐 온/오프
         setKeepScreenOn.setOnCheckedChangeListener((compoundButton, b) -> {
             if (b) {
                 this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -475,18 +487,22 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         });
         setKeepScreenOn.setChecked(true);
 
+        //저장된 필터 설정을 체크해둠
         setFilterScreen();
 
+        //기기에 따라 디스플레이 픽셀 수를 계산하여 레이아웃 크기 조정하는 클래스 : Utils -> AutoLayout.java
         AutoLayout.setResizeView(this);
     }
 
+    //현재 위치와 목적지까지의 직선거리를 계산해주는 함수
     public int getDistance(Location current, Location dest) {
         return Math.round(current.distanceTo(dest));
     }
 
+    //근처에 미션이 발견되면 미션발견 팝업 뷰를 표시해주는 함수
     public void popMissionFound(int theme, int rate) {
         missionFoundScreen.setVisibility(View.VISIBLE);
-        switch (theme) {
+        switch (theme) { //해당 미션의 테마에 따라 텍스트가 바뀜
             case 1:
                 missionFoundTheme.setText("역사");
                 break;
@@ -497,38 +513,42 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 missionFoundTheme.setText("풍경");
                 break;
         }
+        //해당 미션의 난이도에 따라 난이도 표시가 달라짐
         rating.setRating(rate);
     }
 
+    //처음 발견된 미션이 아닌 미션 중, 지도에서 직접 선택한 미션의 정보를 보여주는 뷰를 표시해주는 함수
     private void getSelectedMissionInfo(MapPOIItem mapPOIItem) {
-        if (current == null) {
+        if (current == null) { //current 변수는 전역변수로 현재 위치가 변동될때마다 값이 바뀜
             Toast.makeText(this, "아직 GPS정보를 수신하지 못했습니다.", Toast.LENGTH_SHORT).show();
             return;
         }
-        try {
+        try { //선택한 미션이 이미 완료된 미션인지 확인하는 변수
             boolean isDone = ((MissionData) mapPOIItem.getUserObject()).isDone();
+            //선택한 미션의 정보를 저장하는 변수
             currentMission = (MissionData) mapPOIItem.getUserObject();
+            //현재 미션이 진행중이라는걸 알려주는 변수 : 이 변수가 true 값일때, 주변의 미션을 발견해도 미션 발견 팝업을 표시하지 않는다.
             isMissionIng = true;
-            if (!isDone) {
-                Location selectedMission = new Location("missionPoint");
+            if (!isDone) { //완료된 미션이 아닐 경우
+                Location selectedMission = new Location("missionPoint"); //현재 미션의 좌표값을 받아온다.
                 selectedMission.setLongitude(((MissionData) mapPOIItem.getUserObject()).getmLng());
                 selectedMission.setLatitude(((MissionData) mapPOIItem.getUserObject()).getmLat());
-                if (getDistance(current, selectedMission) <= MISSION_DISTANCE) {
-                    Call<JsonObject> getUserMissions = api.getUserMissions(
+                if (getDistance(current, selectedMission) <= MISSION_DISTANCE) { //기준거리 내의 미션일 경우 미션 진행
+                    Call<JsonObject> getUserMissions = api.getUserMissions( //유저 아이디, 미션이름, 미션좌표를 파라미터로 해당 미션을 데이터베이스에서 검색한다.
                             pref.getUserId(),
                             currentMission.getmName(),
                             String.valueOf(currentMission.getmLat()),
                             String.valueOf(currentMission.getmLng())
                     );
-                    getUserMissions.enqueue(new Callback<JsonObject>() {
+                    getUserMissions.enqueue(new Callback<JsonObject>() { //검색 결과
                         @Override
                         public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                            boolean isGiveUp = false;
-                            boolean isCorrectBefore = false;
-                            boolean isFirstTime = false;
-                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
-                            Date date = new Date();
-                            Date missionDate = new Date();
+                            boolean isGiveUp = false; //포기했던 미션인지
+                            boolean isCorrectBefore = false; //오답을 제출했던 미션인지
+                            boolean isFirstTime = false; //처음 만나는 미션인지
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss"); //날짜형식은 데이터베이스에 있는 형식과 맞춰주고, 이를 활용해 10분이 지났는지 계산한다.
+                            Date date = new Date(); //현재시간
+                            Date missionDate = new Date(); //미션 포기/오답/정답 시간
 
                             JsonObject resObject = response.body();
                             JsonArray resArray = resObject.getAsJsonArray("result");
@@ -538,52 +558,53 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                             try {
                                 JsonObject uMission = resArray.get(0).getAsJsonObject();
                                 try {
-                                    missionDate = dateFormat.parse(uMission.get("M_ANS_TIME").getAsString());
-                                    isGiveUp = false;
-                                } catch (Exception e) {
+                                    missionDate = dateFormat.parse(uMission.get("M_ANS_TIME").getAsString()); //오답/정답 제출 시간이 존재한다면
+                                    isGiveUp = false; //포기하지 않은 미션
+                                } catch (Exception e) { //오답/정답 제출 시간이 없다면
                                     try {
-                                        missionDate = dateFormat.parse(uMission.get("M_GIVE_UP_TIME").getAsString());
+                                        missionDate = dateFormat.parse(uMission.get("M_GIVE_UP_TIME").getAsString()); //포기한 시간 저장
                                         isGiveUp = true;
                                     } catch (Exception e1) {
                                         e1.printStackTrace();
                                     }
                                 }
-                                if (uMission.get("M_IS_CORRECT").getAsInt() == 1) {
+                                if (uMission.get("M_IS_CORRECT").getAsInt() == 1) { //정답을 제출했었는지   1:정답  2:오답
                                     isCorrectBefore = true;
                                 } else {
                                     isCorrectBefore = false;
                                 }
 
-                                if (uMission.get("IS_FIRST_TIME").getAsInt() == 1) {
+                                if (uMission.get("IS_FIRST_TIME").getAsInt() == 1) { //처음 만나는 미션인지  1:처음  2:처음아님
                                     isFirstTime = true;
                                 } else {
                                     isFirstTime = false;
                                 }
                                 try {
-                                    date = dateFormat.parse(dateFormat.format(new Date()));
+                                    date = dateFormat.parse(dateFormat.format(new Date())); //현재 시간을 받아옴
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
 
-                                if (!isCorrectBefore || isGiveUp) {
-                                    if (date.after(missionDate)) {
-                                        setMainScreen(false);
+                                if (!isCorrectBefore || isGiveUp) { //오답이었거나 포기한 미션인 경우
+                                    if (date.after(missionDate)) { //오답제출/포기 시간이 현재 시간보다 10분 전인지 계산해서
+                                        setMainScreen(false); //맞다면 미션 화면을 보여준다.
                                         setMissionFoundScreen(false);
                                         setMissionReadyScreen(true);
-                                    } else {
+                                    } else { //10분이 지나기 전인 경우, 메세지를 출력해준다.
                                         Toast.makeText(MainActivity.this, "아직 10분이 지나지 않았어요!", Toast.LENGTH_SHORT).show();
-                                        isMissionIng = false;
+                                        isMissionIng = false; //현재 미션이 진행중이지 않다 라고 알려준다.
                                     }
-                                } else {
+                                } else { //정답을 제출했던 미션인 경우
+                                    //이미 완료한 미션임을 알려준다.
                                     Toast.makeText(MainActivity.this, "이미 완료한 미션입니다.", Toast.LENGTH_SHORT).show();
-                                    isMissionIng = false;
+                                    isMissionIng = false; //현재 미션이 진행중이지 않다 라고 알려준다.
                                 }
-                            } catch (Exception e) {
+                            } catch (Exception e) { //유저 아이디, 미션이름, 미션좌표를 파라미터로 검색했을 때, 데이터베이스에 미션이 존재하지 않는다면, 처음 만난 미션으로 간주하여 미션을 진행시킨다.
                                 e.printStackTrace();
-                                isMissionIng = true;
-                                setMainScreen(false);
-                                setMissionFoundScreen(false);
-                                setMissionReadyScreen(true);
+                                isMissionIng = true; //현재 미션이 진행중이라고 알림
+                                setMainScreen(false); //지도 화면을 끄고
+                                setMissionFoundScreen(false); //주변 미션 감지 팝업을 끄고
+                                setMissionReadyScreen(true); //미션 준비 화면을 보여준다.
                             }
 
                         }
@@ -593,20 +614,21 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
 
                         }
                     });
-                } else {
+                } else { //선택한 미션이 기준거리 내에 있지 않은 경우, 메세지 출력
                     Toast.makeText(this, "미션 스팟 50미터 이내에서 진행해주세요.", Toast.LENGTH_SHORT).show();
                 }
-            } else {
+            } else { //이미 완료한 미션인 경우 메세지 출력
                 Toast.makeText(MainActivity.this, "이미 완료한 미션입니다.", Toast.LENGTH_SHORT).show();
             }
-        } catch (Exception e) {
+        } catch (Exception e) { //해당 미션의 정보가 정상적으로 저장되어있지 않은 경우, 메세지 출력
             e.printStackTrace();
             Toast.makeText(this, "미션 정보를 불러올 수 없습니다.", Toast.LENGTH_SHORT).show();
         }
 
     }
 
-    @Override
+    @Override //현재 위치가 바뀔때마다 호출되는 함수로, 다음지도 API의 메서드이다.
+    //바로 위에 있는, 맵에서 직접 미션을 선택했을 때와 동일한 로직으로 동작한다.
     public void onCurrentLocationUpdate(MapView mapView, MapPoint mapPoint, float v) {
 //        missionFoundScreen.setVisibility(View.GONE);
         current = new Location("currentPoint");
@@ -726,10 +748,12 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         setMissionPins();
     }
 
-    @Override
+    @Override //다음 지도가 정상적으로 호출되었을 때 호출되는 함수
     public void onMapViewInitialized(MapView mapView) {
-        mapView.setCurrentLocationRadius(50);
+        mapView.setCurrentLocationRadius(50); //현재위치 반경 50미터 크기의 원 생성
+        //원의 테두리 색 설정
         mapView.setCurrentLocationRadiusStrokeColor(Color.argb(Integer.parseInt("4c", 16), Integer.parseInt("67", 16), Integer.parseInt("5d", 16), Integer.parseInt("c6", 16)));
+        //원의 배경 색 설정
         mapView.setCurrentLocationRadiusFillColor(Color.argb(Integer.parseInt("4c", 16), Integer.parseInt("67", 16), Integer.parseInt("5d", 16), Integer.parseInt("c6", 16)));
         getDoneMissions();
 //        setMissionPins();
@@ -801,6 +825,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
 
     }
 
+    //각 뷰들을 터치했을 때 동작하는 이벤트 리스너
     @OnClick({R.id.set_filter, R.id.close_filter, R.id.filter_select_all, R.id.filter_select_done, R.id.filter_select_history, R.id.filter_select_experience, R.id.filter_select_sight, R.id.filter_confirm,
             R.id.mission_found_join, R.id.mission_found_later,
             R.id.mission_ready_close, R.id.mission_ready_next,
@@ -813,7 +838,11 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
             R.id.menu_map, R.id.menu_record, R.id.menu_my_page,
             R.id.mission_record_back,
             R.id.confirm_answer_subject,
-            R.id.open_menu})
+            R.id.open_menu}) //위와 같은 뷰들에 모두 이벤트 리스너를 연결시킨다. ( ButterKnife 플러그인)
+    //이 이벤트 리스너에서는 뷰를 보여주고, 숨기는 동작이 주를 이룬다.
+    //예를 들어, setMainScreen(true); 라면, 메인화면(지도)을 표시해준다.
+    //반대로 setMainScreen(false); 라면, 메인화면(지도)을 표시하지 않는다.
+    //상황에 따라 몇개의 뷰를 숨기고, 표시해주는 동작을 한다.
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.set_filter:
@@ -901,8 +930,8 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 setMissionQuestionScreen(true);
                 break;
 
-            case R.id.go_my_location:
-                if (current != null) {
+            case R.id.go_my_location: //내 위치로 이동하기 버튼을 눌렀을 때.
+                if (current != null) { //위치가 변동될때마다 내 위치를 저장하는 current 변수로부터 경도, 위도를 받아와서 맵 중앙에 위치시킨다.
                     mapView.moveCamera(CameraUpdateFactory.newMapPoint(MapPoint.mapPointWithGeoCoord(current.getLatitude(), current.getLongitude())));
                 } else {
                     Toast.makeText(MainActivity.this, "아직 GPS 정보를 수신하지 못했습니다.", Toast.LENGTH_SHORT).show();
@@ -917,7 +946,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 mapView.zoomOut(true);
                 break;
 
-            case R.id.compass:
+            case R.id.compass: //지도 보기 모드를 방향 고정으로, 또는 방향회전으로 설정한다.
                 isMapHeading = !isMapHeading;
                 if (isMapHeading) {
                     mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOnWithHeading);
@@ -926,7 +955,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 }
                 break;
 
-            case R.id.s1:
+            case R.id.s1: //문제 정답을 선택하면, 번호에 따라 sendUserAnswer 함수를 호출하여 사용자가 선택한 정답을 서버로 전송한다.
                 sendUserAnswer(currentMission.getS1(), 1);
                 break;
             case R.id.s2:
@@ -939,7 +968,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 sendUserAnswer(currentMission.getS4(), 4);
                 break;
             case R.id.give_up_mission:
-                sendGiveUp();
+                sendGiveUp(); //미션 포기를 누르면, 지금 진행중인 미션을 포기했음을 서버로 전송한다.
                 break;
 
             case R.id.mission_result_get_tip:
@@ -984,7 +1013,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 setMenuMap();
                 break;
 
-            case R.id.menu_record:
+            case R.id.menu_record: //하단의 미션 기록 탭
                 isInMap = false;
                 isMissionIng = true;
                 setMainScreen(false);
@@ -1008,7 +1037,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 menuMyPageImg.setImageDrawable(getResources().getDrawable(R.drawable.tab_mypage));
                 break;
 
-            case R.id.menu_my_page:
+            case R.id.menu_my_page: //하단의 마이페이지 탭
                 isInMap = false;
                 isMissionIng = true;
                 setMainScreen(false);
@@ -1075,7 +1104,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         }
     }
 
-    public static void hideKeyboard(Activity activity) {
+    public static void hideKeyboard(Activity activity) { //주관식 정답을 입력하고 제출버튼을 눌렀을때, 키보드를 숨겨주는 함수
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
         //Find the currently focused view, so we can grab the correct window token from it.
         View view = activity.getCurrentFocus();
@@ -1086,7 +1115,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
-    private void sendNotificationThatWeMetBefore() {
+    private void sendNotificationThatWeMetBefore() { //해당 미션을 한번 마주쳤음을 서버로 전송해준다.
         Call<String> sendNotificationThatWeMetBefore = api.isFirstMeet(
                 pref.getUserId(),
                 currentMission.getmName(),
@@ -1107,7 +1136,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
     }
 
 
-    private void getDoneMissions() {
+    private void getDoneMissions() { //서버로부터 완료된 미션을 받아오는 함수
         Call<JsonObject> getUserDoneMissions = api.getUserDoneMissions(pref.getUserId());
         getUserDoneMissions.enqueue(new Callback<JsonObject>() {
             @Override
@@ -1185,7 +1214,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         }
     }
 
-    private void setMissionFinish(int isCorrect) {
+    private void setMissionFinish(int isCorrect) { //정답 제출 후, 오답인지 정답인지를 판단하여 서로 다른 화면을 출력해준다.
         boolean isC = isCorrect == 1;
         if (isC) {
             missionFinishHintTitle.setText("여행 꿀Tip");
@@ -1206,6 +1235,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         }
     }
 
+    //현재 시간으로부터 10분이 지난 시간을 return해주는 함수
     public String getTimeAfter10minutes() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
         Calendar calendar = Calendar.getInstance();
@@ -1233,6 +1263,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         return null;
     }
 
+    //미션을 포기함을 서버로 전송하는 함수
     private void sendGiveUp() {
 //        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
 //        String currentDateandTime = sdf.format(new Date());
@@ -1274,6 +1305,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         sendNotificationThatWeMetBefore();
     }
 
+    //사용자가 입력한 답을 서버로 전송하는 함수 (객관식)
     private void sendUserAnswer(String ans, int selection) {
 //        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
 //        String currentDateandTime = sdf.format(new Date());
@@ -1314,7 +1346,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
 
         sendNotificationThatWeMetBefore();
     }
-
+    //사용자가 입력한 답을 서버로 전송하는 함수 (주관식)
     private void sendUserAnswer(String ans) {
 //        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
 //        String currentDateandTime = sdf.format(new Date());
@@ -1367,6 +1399,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         }
     }
 
+    //오답 제출시 결과 화면 (객관식)
     private void setMissionResultWrong(int userSelected) {
         missionResultText.setText("안타깝게도\n오답이에요!");
         missionResult2Text.setText("괜찮아요!\n10분 만 기다리면\n다시 시도할 수 있어요^^");
@@ -1402,7 +1435,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
                 break;
         }
     }
-
+    //오답 제출시 결과 화면 (주관식)
     private void setMissionResultWrong() {
         missionResultText.setText("안타깝게도\n오답이에요!");
         missionResult2Text.setText("괜찮아요!\n10분만 기다리면\n다시 시도할 수 있어요^^");
@@ -1414,7 +1447,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         res3.setVisibility(View.GONE);
         res4.setVisibility(View.GONE);
     }
-
+    //정답 제출시 결과 화면(주관식)
     private void setMissionResultCorrect() {
         missionResultText.setText("정답!\n축하해요");
         missionResult2Text.setText("여행 꿀팁을 알려줄게요!");
@@ -1427,7 +1460,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         res3.setVisibility(View.GONE);
         res4.setVisibility(View.GONE);
     }
-
+    //정답 제출시 결과 화면(객관식)
     private void setMissionResultCorrect(int userSelected) {
         missionResultText.setText("정답!\n축하해요");
         missionResult2Text.setText("여행 꿀팁을 알려줄게요!");
@@ -1593,6 +1626,8 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         return resArray;
     }
 
+
+    //데이터베이스에 있는 미션 좌표를 읽어와서 지도에 표시해주는 함수
     private void setMissionPins() {
         mapView.removeAllPOIItems();
         ArrayList<MissionData> historyData = new ArrayList<>();
@@ -1604,7 +1639,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
 //                case 0:
 //                    doneData.add(staticData.missionData.get(i));
 //                    break;
-                case 1:
+                case 1: //각 테마별로 구분하여 저장한 후
                     if (!staticData.missionData.get(i).isDone())
                         historyData.add(staticData.missionData.get(i));
                     else
@@ -1633,7 +1668,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         MapPOIItem[] sightItems = new MapPOIItem[sightData.size()];
         MapPOIItem[] doneItems = new MapPOIItem[doneData.size()];
 
-        if (staticData.filter.isDone()) {
+        if (staticData.filter.isDone()) { //필터에서 선택되어있는 테마만 표시함
             Log.d("setDonePin", "adding");
 //            setDoneMissionPins();
             for (int i = 0; i < doneData.size(); i++) {
@@ -1807,25 +1842,26 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
     }
 
 
+    //네비게이션에서 메뉴를 선택했을때
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        if (menuItem.getItemId() == R.id.settings) {
-            setSettingsScreen(true);
-            setMainScreen(false);
-            setMissionFoundScreen(false);
-            setMissionReadyScreen(false);
-            setMissionQuestionScreen(false);
-            setMissionResultScreen(false);
-            setMissionFinishScreen(false);
-            setMyPageScreen(false);
-            setMyInfoScreen(false);
-            isInMap = false;
-            isMissionIng = true;
-        } else if (menuItem.getItemId() == R.id.notice) {
-            Intent intent = new Intent(MainActivity.this, Notifications.class);
+        if (menuItem.getItemId() == R.id.settings) { //설정을 누르면
+            setSettingsScreen(true); //설정 화면 켬
+            setMainScreen(false); //메인화면 끔
+            setMissionFoundScreen(false); //미션팝업 끔
+            setMissionReadyScreen(false); //미션준비화면 끔
+            setMissionQuestionScreen(false); //미션문제화면 끔
+            setMissionResultScreen(false); //미션결과화면 끔
+            setMissionFinishScreen(false); //미션마무리화면 끔
+            setMyPageScreen(false); //마이페이지 끔
+            setMyInfoScreen(false); //내 정보 끔
+            isInMap = false; //현재 지도를 표시하고있지 않음 ( 메인화면이 아님 )
+            isMissionIng = true; //미션이 진행중이라고 설정하여 미션 팝업이 생성되지 않도록 한다.
+        } else if (menuItem.getItemId() == R.id.notice) { //공지사항 클릭시
+            Intent intent = new Intent(MainActivity.this, Notifications.class); //공지사항 액티비티로 이동한다.
             startActivity(intent);
         }
-        drawerLayout.closeDrawer(GravityCompat.START);
+        drawerLayout.closeDrawer(GravityCompat.START); //네비게이션 닫음
         return true;
     }
 
@@ -1947,7 +1983,7 @@ public class MainActivity extends BaseActivity implements MapView.CurrentLocatio
         }
     }
 
-
+//프로필 사진을 불러올때, 선택한 사진을 받아와서 프로필 이미지에 적용시키는 메서드
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
